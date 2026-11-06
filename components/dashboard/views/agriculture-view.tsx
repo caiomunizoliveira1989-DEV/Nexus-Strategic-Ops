@@ -14,6 +14,7 @@ import {
   ComposedChart,
   ResponsiveContainer,
   Tooltip,
+  type TooltipContentProps,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -32,6 +33,7 @@ import {
   Wind,
 } from 'lucide-react'
 import { Panel } from '@/components/dashboard/panel'
+import type { FarmLocation, WeatherSnapshot } from '@/lib/entities/agri-telemetry'
 
 const RealMap = dynamic(
   () => import('@/components/RealMap').then((mod) => mod.RealMap),
@@ -87,7 +89,7 @@ type Kpi = {
   spark: number[]
 }
 
-const kpis: Kpi[] = [
+const AGRICULTURE_KPIS: Kpi[] = [
   {
     label: 'Soil Moisture',
     value: '42',
@@ -141,7 +143,7 @@ type Marker = {
   left: string
 }
 
-const markers: Marker[] = [
+const AGRICULTURE_MARKERS: Marker[] = [
   {
     id: 'soil',
     label: 'Soil Moisture',
@@ -176,7 +178,13 @@ const markers: Marker[] = [
 
 /* ---------------- Yield prediction vs historical ---------------- */
 
-const yieldData = [
+type YieldDataPoint = {
+  month: string
+  historical: number
+  predicted: number
+}
+
+const AGRICULTURE_YIELD_DATA: YieldDataPoint[] = [
   { month: 'Mar', historical: 3.2, predicted: 3.4 },
   { month: 'Apr', historical: 4.1, predicted: 4.6 },
   { month: 'May', historical: 4.8, predicted: 5.5 },
@@ -196,7 +204,7 @@ type FeedItem = {
   Icon: typeof Droplets
 }
 
-const activityFeed: FeedItem[] = [
+const AGRICULTURE_ACTIVITY: FeedItem[] = [
   {
     time: '2m ago',
     title: 'Pest Detection',
@@ -236,10 +244,31 @@ const activityFeed: FeedItem[] = [
 
 /* ---------------- Weather (Open-Meteo) ---------------- */
 
-const SAO_PAULO = { latitude: -23.55, longitude: -46.63, label: 'São Paulo, BR' }
+const AGRICULTURE_LOCATION: FarmLocation = {
+  farmName: 'Fazenda Santa Maria do Monjolinho',
+  city: 'São Carlos',
+  state: 'SP',
+  latitude: -21.98,
+  longitude: -47.9,
+}
+
+type WeatherLocation = {
+  latitude: number
+  longitude: number
+  city: string
+  country: string
+}
+
+const AGRICULTURE_WEATHER_LOCATION: WeatherLocation = {
+  latitude: -23.55,
+  longitude: -46.63,
+  city: 'São Paulo',
+  country: 'BR',
+}
 
 type OpenMeteoResponse = {
   current: {
+    time: string
     temperature_2m: number
     relative_humidity_2m: number
     weather_code: number
@@ -308,13 +337,19 @@ function formatForecastDays(daily: OpenMeteoResponse['daily']): ForecastDay[] {
   })
 }
 
-function ChartTooltip({ active, payload, label }: any) {
+type ChartTooltipProps = {
+  active?: boolean
+  payload?: TooltipContentProps<number, string>['payload']
+  label?: TooltipContentProps<number, string>['label']
+}
+
+function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-lg border border-border bg-popover/95 px-3 py-2 text-xs shadow-lg backdrop-blur-md">
       <p className="mb-1 font-semibold text-foreground">{label}</p>
-      {payload.map((p: any) => (
-        <p key={p.dataKey} className="flex items-center gap-2 text-muted-foreground">
+      {payload.map((p, index) => (
+        <p key={p.name ?? index} className="flex items-center gap-2 text-muted-foreground">
           <span
             className="size-2 rounded-full"
             style={{ background: p.color || p.stroke || p.fill }}
@@ -333,6 +368,7 @@ export function AgricultureView() {
   const [now, setNow] = useState<Date | null>(null)
   
   const [weather, setWeather] = useState<OpenMeteoResponse | null>(null)
+  const [weatherSnapshot, setWeatherSnapshot] = useState<WeatherSnapshot | null>(null)
   const [weatherLoading, setWeatherLoading] = useState(true)
   const [weatherError, setWeatherError] = useState<string | null>(null)
 
@@ -352,8 +388,8 @@ export function AgricultureView() {
 
       try {
         const params = new URLSearchParams({
-          latitude: String(SAO_PAULO.latitude),
-          longitude: String(SAO_PAULO.longitude),
+          latitude: String(AGRICULTURE_WEATHER_LOCATION.latitude),
+          longitude: String(AGRICULTURE_WEATHER_LOCATION.longitude),
           current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m',
           daily: 'weather_code,temperature_2m_max,precipitation_probability_max',
           timezone: 'America/Sao_Paulo',
@@ -371,6 +407,13 @@ export function AgricultureView() {
 
         const data: OpenMeteoResponse = await response.json()
         setWeather(data)
+        setWeatherSnapshot({
+          city: AGRICULTURE_WEATHER_LOCATION.city,
+          country: AGRICULTURE_WEATHER_LOCATION.country,
+          observedAt: data.current.time,
+          temperatureC: data.current.temperature_2m,
+          condition: weatherCodeToCondition(data.current.weather_code),
+        })
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return
         setWeatherError('Unable to load weather data')
@@ -405,7 +448,7 @@ export function AgricultureView() {
     <div className="space-y-6">
       {/* Linha de KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((k) => {
+        {AGRICULTURE_KPIS.map((k) => {
           const s = toneStyles[k.tone]
           const data = k.spark.map((v, i) => ({ i, v }))
           return (
@@ -486,10 +529,10 @@ export function AgricultureView() {
                 <Satellite className="size-5 text-neon-green" />
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
-                    Crop Monitoring · Fazenda Santa Maria do Monjolinho
+                    {`Crop Monitoring · ${AGRICULTURE_LOCATION.farmName}`}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    São Carlos, SP · 21.98° S, 47.90° W
+                    {`${AGRICULTURE_LOCATION.city}, ${AGRICULTURE_LOCATION.state} · ${Math.abs(AGRICULTURE_LOCATION.latitude).toFixed(2)}° S, ${Math.abs(AGRICULTURE_LOCATION.longitude).toFixed(2)}° W`}
                   </p>
                 </div>
               </div>
@@ -503,7 +546,7 @@ export function AgricultureView() {
 
             {/* Legenda selecionável */}
             <div className="grid grid-cols-3 gap-px bg-border">
-              {markers.map((m) => {
+              {AGRICULTURE_MARKERS.map((m) => {
                 const s = toneStyles[m.tone]
                 const isActive = active === m.id
                 return (
@@ -552,7 +595,7 @@ export function AgricultureView() {
             <div className="relative space-y-4 pl-1">
               {/* Linha do tempo */}
               <span className="absolute left-[15px] top-2 bottom-2 w-px bg-border" />
-              {activityFeed.map((f) => {
+              {AGRICULTURE_ACTIVITY.map((f) => {
                 const s = toneStyles[f.tone]
                 return (
                   <div key={f.time} className="relative flex gap-3">
@@ -594,7 +637,9 @@ export function AgricultureView() {
               </h3>
               <div className="text-right">
                 <p className="text-xs font-medium text-muted-foreground">
-                  {SAO_PAULO.label}
+                  {weatherSnapshot
+                    ? `${weatherSnapshot.city}, ${weatherSnapshot.country}`
+                    : `${AGRICULTURE_WEATHER_LOCATION.city}, ${AGRICULTURE_WEATHER_LOCATION.country}`}
                 </p>
                 <p className="text-[11px] capitalize text-muted-foreground">
                   {formattedDate}
@@ -614,14 +659,14 @@ export function AgricultureView() {
                       ? '—'
                       : weatherError
                         ? '—'
-                        : `${Math.round(weather?.current?.temperature_2m || 0)}°C`}
+                        : `${Math.round(weatherSnapshot?.temperatureC || 0)}°C`}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {weatherLoading
                       ? 'Carregando...'
                       : weatherError
                         ? weatherError
-                        : weatherCodeToCondition(currentWeatherCode)}
+                        : weatherSnapshot?.condition ?? weatherCodeToCondition(currentWeatherCode)}
                   </p>
                 </div>
               </div>
@@ -703,7 +748,7 @@ export function AgricultureView() {
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
-              data={yieldData}
+              data={AGRICULTURE_YIELD_DATA}
               margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
             >
               <defs>
@@ -736,7 +781,7 @@ export function AgricultureView() {
                 radius={[4, 4, 0, 0]}
                 barSize={22}
               >
-                {yieldData.map((_, i) => (
+                {AGRICULTURE_YIELD_DATA.map((_, i) => (
                   <Cell key={i} fill="var(--neon-blue)" fillOpacity={0.55} />
                 ))}
               </Bar>
