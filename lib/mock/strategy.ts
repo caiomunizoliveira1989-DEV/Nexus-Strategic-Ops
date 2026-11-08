@@ -3,8 +3,6 @@ import type { StrategyDashboardData } from '@/lib/entities/strategy'
 export const MOCK_STRATEGY: StrategyDashboardData = {
   header: {
     presenterName: 'Sarah Chen',
-    overviewDate: '2023-10-26T00:00:00.000Z',
-    calendarDate: '2023-10-28T00:00:00.000Z',
   },
   financial: {
     growthPct: 8.5,
@@ -14,8 +12,8 @@ export const MOCK_STRATEGY: StrategyDashboardData = {
       { date: '2023-03-02T00:00:00.000Z', revenueMEur: 13, costMEur: 7 },
       { date: '2023-03-03T00:00:00.000Z', revenueMEur: 11, costMEur: 6 },
       { date: '2023-04-04T00:00:00.000Z', revenueMEur: 16, costMEur: 9 },
+      { date: '2023-08-01T00:00:00.000Z', revenueMEur: 20, costMEur: 13 },
       { date: '2023-09-05T00:00:00.000Z', revenueMEur: 15, costMEur: 11 },
-      { date: '2023-01-08T00:00:00.000Z', revenueMEur: 20, costMEur: 13 },
       { date: '2023-10-02T00:00:00.000Z', revenueMEur: 23, costMEur: 15 },
     ],
   },

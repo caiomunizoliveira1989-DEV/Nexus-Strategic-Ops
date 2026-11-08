@@ -8,8 +8,6 @@ export type AllocationResource = 'Capital' | 'Human' | 'Equipment' | 'R&D'
 
 export interface StrategyHeader {
   presenterName: string
-  overviewDate: string
-  calendarDate: string
 }
 
 export interface FinancialImpactPoint {

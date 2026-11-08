@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -154,10 +155,21 @@ function formatDate(timestamp: string): string {
   })
 }
 
-function toHeaderDisplay(header: StrategyHeader): HeaderDisplay {
+function formatToday(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function toHeaderDisplay(
+  header: StrategyHeader,
+  todayLabel: string,
+): HeaderDisplay {
   return {
-    overviewLabel: `| ${header.presenterName} | ${formatDate(header.overviewDate)}`,
-    calendarDateLabel: formatDate(header.calendarDate),
+    overviewLabel: `| ${header.presenterName} | ${todayLabel}`,
+    calendarDateLabel: todayLabel,
   }
 }
 
@@ -259,9 +271,12 @@ function getRecommendationText(recommendation: StrategyRecommendation): string {
   }
 }
 
-function deriveStrategyPresentation(data: StrategyDashboardData) {
+function deriveStrategyPresentation(
+  data: StrategyDashboardData,
+  todayLabel: string,
+) {
   return {
-    header: toHeaderDisplay(data.header),
+    header: toHeaderDisplay(data.header, todayLabel),
     financial: toFinancialDisplay(data.financial, FINANCIAL_VISUAL),
     market: toMarketDisplay(data.market, MARKET_VISUAL),
     allocation: toAllocationDisplay(data.allocation),
@@ -274,9 +289,18 @@ function deriveStrategyPresentation(data: StrategyDashboardData) {
   }
 }
 
-const strategyPresentation = deriveStrategyPresentation(MOCK_STRATEGY)
-
 export function StrategyView() {
+  const [todayLabel, setTodayLabel] = useState<string | null>(null)
+
+  useEffect(() => {
+    setTodayLabel(formatToday(new Date()))
+  }, [])
+
+  const strategyPresentation = deriveStrategyPresentation(
+    MOCK_STRATEGY,
+    todayLabel ?? '',
+  )
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -293,7 +317,6 @@ export function StrategyView() {
           <GenerateReportButton accent="green" />
         </div>
       </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
           <div className="mb-2 flex items-start justify-between">
@@ -365,7 +388,6 @@ export function StrategyView() {
             </ResponsiveContainer>
           </div>
         </Panel>
-
         <Panel>
           <PanelTitle>Insights &amp; Actions</PanelTitle>
           <div className="rounded-xl border border-neon-green/30 bg-neon-green/5 p-4">
@@ -392,7 +414,6 @@ export function StrategyView() {
           </div>
         </Panel>
       </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Panel>
           <div className="mb-4 flex items-center justify-between">
@@ -438,7 +459,6 @@ export function StrategyView() {
             </ResponsiveContainer>
           </div>
         </Panel>
-
         <Panel>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-semibold text-foreground">
@@ -486,7 +506,6 @@ export function StrategyView() {
             </ResponsiveContainer>
           </div>
         </Panel>
-
         <Panel>
           <PanelTitle>Automated Supplier Contact Status</PanelTitle>
           <ul className="space-y-1">
