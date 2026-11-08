@@ -55,6 +55,7 @@ import {
   MOCK_ALERTS,
   MOCK_KPIS,
   MOCK_LOCATION,
+  MOCK_PLOTS,
   MOCK_WEATHER,
   MOCK_YIELDS,
 } from '@/lib/mock/agriculture'
@@ -197,6 +198,28 @@ function toAlertDisplay(alert: FieldAlert, visual: AlertVisual): AlertDisplay {
   }
 }
 
+function getAlertAreaLabel(plotId: string): string {
+  const plot = MOCK_PLOTS.find((item) => item.id === plotId)
+  if (!plot) {
+    throw new Error(`No plot found for alert plot ID "${plotId}"`)
+  }
+  return plot.name
+}
+
+function toRelativeTimeLabel(timestamp: string, referenceTime: number): string {
+  const elapsedMinutes = Math.max(
+    0,
+    Math.floor((referenceTime - Date.parse(timestamp)) / 60_000),
+  )
+
+  if (elapsedMinutes < 60) return `${elapsedMinutes}m ago`
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60)
+  if (elapsedHours < 24) return `${elapsedHours}h ago`
+
+  return `${Math.floor(elapsedHours / 24)}d ago`
+}
+
 function toYieldDisplay(forecast: YieldForecast): YieldForecastDisplay {
   return {
     id: forecast.id,
@@ -215,8 +238,15 @@ const kpis = MOCK_KPIS.map((k) => toKpiDisplay(k, KPI_VISUALS[k.id]))
 const activities = MOCK_ACTIVITY.map((a) =>
   toActivityDisplay(a, ACTIVITY_VISUALS[a.type]),
 )
+const ALERT_REFERENCE_TIME =
+  Math.max(...MOCK_ALERTS.map((alert) => Date.parse(alert.detectedAt))) +
+  2 * 60 * 1000
 const alerts = MOCK_ALERTS.map((al) =>
-  toAlertDisplay(al, ALERT_VISUALS[al.severity]),
+  ({
+    ...toAlertDisplay(al, ALERT_VISUALS[al.severity]),
+    areaLabel: getAlertAreaLabel(al.plotId),
+    timeLabel: toRelativeTimeLabel(al.detectedAt, ALERT_REFERENCE_TIME),
+  }),
 )
 const yields = MOCK_YIELDS.map((forecast) => toYieldDisplay(forecast))
 
@@ -673,6 +703,47 @@ export function AgricultureView() {
             >
               View all activity
             </button>
+          </Panel>
+
+          <Panel className="flex flex-col">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
+                <AlertTriangle className="size-4 text-neon-amber" />
+                Alertas
+              </h3>
+            </div>
+
+            <div className="max-h-64 space-y-4 overflow-y-auto pr-1">
+              {alerts.map((alert) => {
+                const s = toneStyles[alert.visual.accent]
+                const Icon = VISUAL_ICONS[alert.visual.icon]
+                return (
+                  <div key={alert.id} className="flex gap-3">
+                    <span
+                      className={`flex size-7 shrink-0 items-center justify-center rounded-full border ${s.chip}`}
+                    >
+                      <Icon className={`size-3.5 ${s.text}`} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-foreground">
+                          {alert.title}
+                        </p>
+                        <span className="shrink-0 text-[10px] text-muted-foreground">
+                          {alert.timeLabel}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {alert.areaLabel}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {alert.severityLabel}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </Panel>
 
           {/* Previsão do tempo */}
