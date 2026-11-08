@@ -31,9 +31,33 @@ import {
   Sun,
   TrendingUp,
   Wind,
+  type LucideIcon,
 } from 'lucide-react'
 import { Panel } from '@/components/dashboard/panel'
-import type { FarmLocation, WeatherSnapshot } from '@/lib/entities/agri-telemetry'
+import type {
+  ActivityFeedItem,
+  AgricultureKpi,
+  FieldAlert,
+  WeatherSnapshot,
+  YieldForecast,
+} from '@/lib/entities/agri-telemetry'
+import type {
+  ActivityDisplay,
+  ActivityVisual,
+  AlertDisplay,
+  AlertVisual,
+  KpiDisplay,
+  KpiVisual,
+  YieldForecastDisplay,
+} from '@/lib/entities/agri-presentation'
+import {
+  MOCK_ACTIVITY,
+  MOCK_ALERTS,
+  MOCK_KPIS,
+  MOCK_LOCATION,
+  MOCK_WEATHER,
+  MOCK_YIELDS,
+} from '@/lib/mock/agriculture'
 
 const RealMap = dynamic(
   () => import('@/components/RealMap').then((mod) => mod.RealMap),
@@ -76,59 +100,125 @@ const toneStyles: Record<
   },
 }
 
-/* ---------------- KPIs ---------------- */
-
-type Kpi = {
-  label: string
-  value: string
-  unit?: string
-  delta: string
-  deltaUp: boolean
-  tone: Tone
-  Icon: typeof Droplets
-  spark: number[]
+const KPI_VISUALS: Record<string, KpiVisual> = {
+  'soil-moisture': {
+    icon: 'droplets',
+    accent: 'blue',
+    sparkline: [38, 41, 39, 44, 42, 46, 43, 45],
+  },
+  'crop-health-index': {
+    icon: 'leaf',
+    accent: 'green',
+    sparkline: [88, 90, 89, 91, 92, 93, 93, 94],
+  },
+  'active-weather-alerts': {
+    icon: 'alert-triangle',
+    accent: 'amber',
+    sparkline: [1, 1, 2, 2, 1, 2, 3, 3],
+  },
+  'pest-risk-zones': {
+    icon: 'bug',
+    accent: 'red',
+    sparkline: [0, 1, 1, 1, 2, 1, 2, 2],
+  },
 }
 
-const AGRICULTURE_KPIS: Kpi[] = [
-  {
-    label: 'Soil Moisture',
-    value: '42',
-    unit: '%',
-    delta: '+2.4%',
-    deltaUp: true,
-    tone: 'blue',
-    Icon: Droplets,
-    spark: [38, 41, 39, 44, 42, 46, 43, 45],
-  },
-  {
-    label: 'Crop Health Index',
-    value: '94.2',
-    unit: '%',
-    delta: '+1.8%',
-    deltaUp: true,
-    tone: 'green',
-    Icon: Leaf,
-    spark: [88, 90, 89, 91, 92, 93, 93, 94],
-  },
-  {
-    label: 'Active Weather Alerts',
-    value: '3',
-    delta: '+1 today',
-    deltaUp: false,
-    tone: 'amber',
-    Icon: AlertTriangle,
-    spark: [1, 1, 2, 2, 1, 2, 3, 3],
-  },
-  {
-    label: 'Pest Risk Zones',
-    value: '2',
-    delta: 'Plot 4B critical',
-    deltaUp: false,
-    tone: 'red',
-    Icon: Bug,
-    spark: [0, 1, 1, 1, 2, 1, 2, 2],
-  },
-]
+const ACTIVITY_VISUALS: Record<string, ActivityVisual> = {
+  pest_detection: { icon: 'bug', accent: 'red' },
+  irrigation: { icon: 'droplets', accent: 'blue' },
+  ndvi_recalc: { icon: 'leaf', accent: 'green' },
+  weather: { icon: 'cloud-rain', accent: 'amber' },
+  inspection: { icon: 'check-circle', accent: 'green' },
+}
+
+const ALERT_VISUALS: Record<string, AlertVisual> = {
+  low: { icon: 'droplets', accent: 'blue' },
+  medium: { icon: 'cloud-rain', accent: 'amber' },
+  high: { icon: 'bug', accent: 'red' },
+  critical: { icon: 'bug', accent: 'red' },
+}
+
+const VISUAL_ICONS: Record<string, LucideIcon> = {
+  droplets: Droplets,
+  leaf: Leaf,
+  'alert-triangle': AlertTriangle,
+  bug: Bug,
+  'cloud-rain': CloudRain,
+  'check-circle': CheckCircle2,
+}
+
+const ACTIVITY_REFERENCE_TIME =
+  Math.max(...MOCK_ACTIVITY.map((item) => Date.parse(item.occurredAt))) + 2 * 60 * 1000
+
+function toKpiDisplay(kpi: AgricultureKpi, visual: KpiVisual): KpiDisplay {
+  const isPositiveMetric =
+    kpi.id === 'soil-moisture' || kpi.id === 'crop-health-index'
+
+  return {
+    id: kpi.id,
+    label: kpi.label,
+    valueLabel: `${kpi.trend.value}${kpi.unit ?? ''}`,
+    deltaLabel: kpi.trend.deltaLabel,
+    deltaDirection: isPositiveMetric
+      ? 'up'
+      : kpi.trend.deltaPct === 0
+        ? 'flat'
+        : 'down',
+    visual,
+  }
+}
+
+function toActivityDisplay(
+  item: ActivityFeedItem,
+  visual: ActivityVisual,
+): ActivityDisplay {
+  const elapsedMinutes = Math.max(
+    0,
+    Math.floor((ACTIVITY_REFERENCE_TIME - Date.parse(item.occurredAt)) / 60_000),
+  )
+
+  return {
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    timeLabel: `${elapsedMinutes}m ago`,
+    visual,
+  }
+}
+
+function toAlertDisplay(alert: FieldAlert, visual: AlertVisual): AlertDisplay {
+  return {
+    id: alert.id,
+    title: alert.title,
+    description: alert.description,
+    severityLabel:
+      alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1),
+    visual,
+  }
+}
+
+function toYieldDisplay(forecast: YieldForecast): YieldForecastDisplay {
+  return {
+    id: forecast.id,
+    plotId: forecast.plotId,
+    cropLabel: forecast.crop,
+    expectedLabel: `${forecast.expectedTons.toFixed(1)} t/ha`,
+    confidenceLabel: `${forecast.confidencePct}%`,
+    windowLabel: new Date(`${forecast.harvestWindow}-01T00:00:00`).toLocaleDateString(
+      'en-US',
+      { month: 'short', year: 'numeric' },
+    ),
+  }
+}
+
+const kpis = MOCK_KPIS.map((k) => toKpiDisplay(k, KPI_VISUALS[k.id]))
+const activities = MOCK_ACTIVITY.map((a) =>
+  toActivityDisplay(a, ACTIVITY_VISUALS[a.type]),
+)
+const alerts = MOCK_ALERTS.map((al) =>
+  toAlertDisplay(al, ALERT_VISUALS[al.severity]),
+)
+const yields = MOCK_YIELDS.map((forecast) => toYieldDisplay(forecast))
 
 /* ---------------- Map markers ---------------- */
 
@@ -194,63 +284,16 @@ const AGRICULTURE_YIELD_DATA: YieldDataPoint[] = [
   { month: 'Sep', historical: 9.1, predicted: 10.4 },
 ]
 
+const AGRICULTURE_YIELD_CHART_DATA = AGRICULTURE_YIELD_DATA.map((point) => {
+  const forecast = yields.find((item) => item.windowLabel.startsWith(point.month))
+  return forecast
+    ? { ...point, predicted: Number(forecast.expectedLabel.split(' ')[0]) }
+    : point
+})
+
 /* ---------------- Activity feed / alerts ---------------- */
 
-type FeedItem = {
-  time: string
-  title: string
-  text: string
-  tone: Tone
-  Icon: typeof Droplets
-}
-
-const AGRICULTURE_ACTIVITY: FeedItem[] = [
-  {
-    time: '2m ago',
-    title: 'Pest Detection',
-    text: 'High severity flagged on Plot 4B — scout dispatched.',
-    tone: 'red',
-    Icon: Bug,
-  },
-  {
-    time: '8m ago',
-    title: 'Irrigation Cycle',
-    text: 'Zone 3 completed · 1,240 L delivered.',
-    tone: 'blue',
-    Icon: Droplets,
-  },
-  {
-    time: '15m ago',
-    title: 'NDVI Recalculated',
-    text: 'Plot 1B canopy density up +3.2% this week.',
-    tone: 'green',
-    Icon: Leaf,
-  },
-  {
-    time: '22m ago',
-    title: 'Storm Warning',
-    text: 'Heavy rainfall expected Thursday — 70% chance.',
-    tone: 'amber',
-    Icon: CloudRain,
-  },
-  {
-    time: '34m ago',
-    title: 'Inspection Passed',
-    text: 'Plot 2A soil sampling within optimal range.',
-    tone: 'green',
-    Icon: CheckCircle2,
-  },
-]
-
 /* ---------------- Weather (Open-Meteo) ---------------- */
-
-const AGRICULTURE_LOCATION: FarmLocation = {
-  farmName: 'Fazenda Santa Maria do Monjolinho',
-  city: 'São Carlos',
-  state: 'SP',
-  latitude: -21.98,
-  longitude: -47.9,
-}
 
 type WeatherLocation = {
   latitude: number
@@ -262,8 +305,8 @@ type WeatherLocation = {
 const AGRICULTURE_WEATHER_LOCATION: WeatherLocation = {
   latitude: -23.55,
   longitude: -46.63,
-  city: 'São Paulo',
-  country: 'BR',
+  city: MOCK_WEATHER.city,
+  country: MOCK_WEATHER.country,
 }
 
 type OpenMeteoResponse = {
@@ -368,7 +411,9 @@ export function AgricultureView() {
   const [now, setNow] = useState<Date | null>(null)
   
   const [weather, setWeather] = useState<OpenMeteoResponse | null>(null)
-  const [weatherSnapshot, setWeatherSnapshot] = useState<WeatherSnapshot | null>(null)
+  const [weatherSnapshot, setWeatherSnapshot] = useState<WeatherSnapshot | null>(
+    MOCK_WEATHER,
+  )
   const [weatherLoading, setWeatherLoading] = useState(true)
   const [weatherError, setWeatherError] = useState<string | null>(null)
 
@@ -448,35 +493,36 @@ export function AgricultureView() {
     <div className="space-y-6">
       {/* Linha de KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {AGRICULTURE_KPIS.map((k) => {
-          const s = toneStyles[k.tone]
-          const data = k.spark.map((v, i) => ({ i, v }))
+        {kpis.map((k) => {
+          const s = toneStyles[k.visual.accent]
+          const Icon = VISUAL_ICONS[k.visual.icon]
+          const data = k.visual.sparkline.map((v, i) => ({ i, v }))
           return (
             <Panel key={k.label} className="p-4">
               <div className="flex items-start justify-between">
                 <span
                   className={`flex size-10 items-center justify-center rounded-xl border ${s.chip}`}
                 >
-                  <k.Icon className={`size-5 ${s.text}`} />
+                  <Icon className={`size-5 ${s.text}`} />
                 </span>
                 <span
                   className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    k.deltaUp
+                    k.deltaDirection === 'up'
                       ? 'bg-neon-green/10 text-neon-green'
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  {k.deltaUp && <TrendingUp className="size-3" />}
-                  {k.delta}
+                  {k.deltaDirection === 'up' && <TrendingUp className="size-3" />}
+                  {k.deltaLabel}
                 </span>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">{k.label}</p>
               <div className="flex items-end justify-between gap-2">
                 <p className="text-2xl font-bold text-foreground">
-                  {k.value}
-                  {k.unit && (
+                  {k.valueLabel.endsWith('%') ? k.valueLabel.slice(0, -1) : k.valueLabel}
+                  {k.valueLabel.endsWith('%') && (
                     <span className="ml-0.5 text-sm font-medium text-muted-foreground">
-                      {k.unit}
+                      %
                     </span>
                   )}
                 </p>
@@ -493,12 +539,12 @@ export function AgricultureView() {
                         >
                           <stop
                             offset="0%"
-                            stopColor={`var(--neon-${k.tone})`}
+                            stopColor={`var(--neon-${k.visual.accent})`}
                             stopOpacity={0.5}
                           />
                           <stop
                             offset="100%"
-                            stopColor={`var(--neon-${k.tone})`}
+                            stopColor={`var(--neon-${k.visual.accent})`}
                             stopOpacity={0}
                           />
                         </linearGradient>
@@ -506,7 +552,7 @@ export function AgricultureView() {
                       <Area
                         type="monotone"
                         dataKey="v"
-                        stroke={`var(--neon-${k.tone})`}
+                        stroke={`var(--neon-${k.visual.accent})`}
                         fill={`url(#spark-${k.label})`}
                         strokeWidth={2}
                       />
@@ -529,10 +575,10 @@ export function AgricultureView() {
                 <Satellite className="size-5 text-neon-green" />
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
-                    {`Crop Monitoring · ${AGRICULTURE_LOCATION.farmName}`}
+                    {`Crop Monitoring · ${MOCK_LOCATION.farmName}`}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    {`${AGRICULTURE_LOCATION.city}, ${AGRICULTURE_LOCATION.state} · ${Math.abs(AGRICULTURE_LOCATION.latitude).toFixed(2)}° S, ${Math.abs(AGRICULTURE_LOCATION.longitude).toFixed(2)}° W`}
+                    {`${MOCK_LOCATION.city}, ${MOCK_LOCATION.state} · ${Math.abs(MOCK_LOCATION.latitude).toFixed(2)}° S, ${Math.abs(MOCK_LOCATION.longitude).toFixed(2)}° W`}
                   </p>
                 </div>
               </div>
@@ -595,14 +641,15 @@ export function AgricultureView() {
             <div className="relative space-y-4 pl-1">
               {/* Linha do tempo */}
               <span className="absolute left-[15px] top-2 bottom-2 w-px bg-border" />
-              {AGRICULTURE_ACTIVITY.map((f) => {
-                const s = toneStyles[f.tone]
+              {activities.map((f) => {
+                const s = toneStyles[f.visual.accent]
+                const Icon = VISUAL_ICONS[f.visual.icon]
                 return (
-                  <div key={f.time} className="relative flex gap-3">
+                  <div key={f.id} className="relative flex gap-3">
                     <span
                       className={`relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border ${s.chip}`}
                     >
-                      <f.Icon className={`size-3.5 ${s.text}`} />
+                      <Icon className={`size-3.5 ${s.text}`} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
@@ -610,10 +657,10 @@ export function AgricultureView() {
                           {f.title}
                         </p>
                         <span className="shrink-0 text-[10px] text-muted-foreground">
-                          {f.time}
+                          {f.timeLabel}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{f.text}</p>
+                      <p className="text-xs text-muted-foreground">{f.description}</p>
                     </div>
                   </div>
                 )
@@ -748,7 +795,7 @@ export function AgricultureView() {
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
-              data={AGRICULTURE_YIELD_DATA}
+              data={AGRICULTURE_YIELD_CHART_DATA}
               margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
             >
               <defs>
@@ -781,7 +828,7 @@ export function AgricultureView() {
                 radius={[4, 4, 0, 0]}
                 barSize={22}
               >
-                {AGRICULTURE_YIELD_DATA.map((_, i) => (
+                {AGRICULTURE_YIELD_CHART_DATA.map((_, i) => (
                   <Cell key={i} fill="var(--neon-blue)" fillOpacity={0.55} />
                 ))}
               </Bar>
