@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   Bell,
@@ -8,80 +9,179 @@ import {
   ListChecks,
   MoreHorizontal,
   Repeat,
-  Ship,
+  Ship as ShipIcon,
+  type LucideIcon,
 } from 'lucide-react'
 import { Panel } from '@/components/dashboard/panel'
+import type {
+  LogisticsMap,
+  LogisticsWeather,
+  MapLegendTone,
+  Ship,
+  ShipStatus,
+  Suggestion,
+  SuggestionKind,
+  SuggestionTone,
+  WeatherRow,
+} from '@/lib/entities/logistics'
+import { MOCK_LOGISTICS } from '@/lib/mock/logistics'
 
-const conflicts = [
-  { x: 540, y: 175, label: 'Suez' },
-  { x: 560, y: 215, label: 'Yemen' },
-  { x: 790, y: 195, label: 'Taiwan Strait' },
-]
+type SuggestionIcon = LucideIcon
 
-const weatherRows = [
-  { label: 'Detailed', value: '15-21°', tone: 'text-foreground' },
-  { label: 'Cyclone warning', value: '38°', tone: 'text-foreground' },
-  { label: 'Deaning', value: '13°', tone: 'text-foreground' },
-  { label: 'Storms', value: '15 rm', tone: 'text-foreground' },
-  { label: 'India', value: 'Nearstorna', tone: 'text-neon-cyan' },
-  { label: 'Storms', value: 'North r/a', tone: 'text-foreground' },
-]
+const SUGGESTION_ICONS: Record<SuggestionKind, SuggestionIcon> = {
+  rerouting: Repeat,
+  diplomatic_alert: Bell,
+  compliance_update: AlertTriangle,
+  risk_levels: ListChecks,
+}
 
-const legend = [
-  { label: 'Conflict Zones', value: 'Red', color: 'text-neon-red' },
-  { label: 'Safe alternative route', value: 'Risk', color: 'text-neon-amber' },
-  { label: 'Diplomatic alerts', value: 'Alerts', color: 'text-neon-amber' },
-  { label: 'Compliance updates', value: 'Red', color: 'text-neon-red' },
-  { label: 'Active ships (alt)', value: 'Orange', color: 'text-neon-amber' },
-  { label: 'Active ships', value: 'Blue', color: 'text-neon-cyan' },
-]
+const SUGGESTION_TONE_CLASSES: Record<SuggestionTone, string> = {
+  red: 'border-neon-red/40 text-neon-red',
+  amber: 'border-neon-amber/40 text-neon-amber',
+}
 
-const ships = [
-  { n: 'Polaris (Hkg-Rot)', eta: '12d 6h', status: 'En Route', tone: 'text-neon-cyan' },
-  { n: 'Challenger (LA-Sgp)', eta: '19d 1h', status: 'Conflict Zone', tone: 'text-neon-red' },
-  { n: 'Rumatun (HK-Sgp)', eta: '12d 19h', status: 'En Route', tone: 'text-neon-cyan' },
-  { n: 'Challenger (LA-Sgp)', eta: '19d 19h', status: 'Conflict Zone', tone: 'text-neon-red' },
-  { n: 'Paria (Hkg-Rot)', eta: '12d 6h', status: 'En Route', tone: 'text-neon-cyan' },
-]
+const LEGEND_TONE_CLASSES: Record<MapLegendTone, string> = {
+  red: 'text-neon-red',
+  amber: 'text-neon-amber',
+  cyan: 'text-neon-cyan',
+}
 
-const suggestions = [
-  {
-    Icon: Repeat,
-    t: 'Rerouting needed via Cape of Good Hope',
-    d: 'Rerouting needed via Cape of Good Hope.',
-    badge: 'Needed',
-    tone: 'border-neon-red/40 text-neon-red',
-  },
-  {
-    Icon: Bell,
-    t: 'Diplomatic alerts',
-    d: 'Rerouting alerts for via Cape of Good Hope.',
-    badge: 'Alerts',
-    tone: 'border-neon-amber/40 text-neon-amber',
-  },
-  {
-    Icon: AlertTriangle,
-    t: 'Compliance updates',
-    d: 'Compliance updates with risk levels and recommended actions.',
-    badge: 'Medium',
-    tone: 'border-neon-amber/40 text-neon-amber',
-  },
-  {
-    Icon: ListChecks,
-    t: 'Compliance updates',
-    d: 'Risk levels and recommended actions.',
-    badge: 'Levels',
-    tone: 'border-neon-amber/40 text-neon-amber',
-  },
-]
+const WEATHER_TONE_CLASSES: Record<WeatherRow['tone'], string> = {
+  default: 'text-foreground',
+  cyan: 'text-neon-cyan',
+}
+
+const SHIP_STATUS_LABELS: Record<ShipStatus, string> = {
+  en_route: 'En Route',
+  conflict_zone: 'Conflict Zone',
+}
+
+const SHIP_STATUS_TONES: Record<ShipStatus, string> = {
+  en_route: 'text-neon-cyan',
+  conflict_zone: 'text-neon-red',
+}
+
+type WeatherDisplay = {
+  title: string
+  summary: string
+  rows: { label: string; value: string; toneClass: string }[]
+  legend: { label: string; value: string; toneClass: string }[]
+}
+
+type ShipDisplay = {
+  id: string
+  name: string
+  eta: string
+  statusLabel: string
+  toneClass: string
+}
+
+type SuggestionDisplay = {
+  id: string
+  title: string
+  description: string
+  badge: string
+  toneClass: string
+  Icon: SuggestionIcon
+}
+
+type MapDisplay = {
+  imageSrc: string
+  imageAlt: string
+  activeRoutes: string[]
+  alternativeRoute: string
+  conflicts: { id: string; label: string; x: number; y: number }[]
+}
+
+function formatToday(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+function toMapDisplay(map: LogisticsMap): MapDisplay {
+  return {
+    imageSrc: map.imageSrc,
+    imageAlt: map.imageAlt,
+    activeRoutes: map.activeRoutes,
+    alternativeRoute: map.alternativeRoute,
+    conflicts: map.conflicts,
+  }
+}
+
+function toWeatherDisplay(weather: LogisticsWeather): WeatherDisplay {
+  return {
+    title: weather.title,
+    summary: weather.summary,
+    rows: weather.rows.map((row) => ({
+      label: row.label,
+      value: row.value,
+      toneClass: WEATHER_TONE_CLASSES[row.tone],
+    })),
+    legend: weather.legend.map((item) => ({
+      label: item.label,
+      value: item.value,
+      toneClass: LEGEND_TONE_CLASSES[item.tone],
+    })),
+  }
+}
+
+function toShipDisplay(ship: Ship): ShipDisplay {
+  return {
+    id: ship.id,
+    name: ship.name,
+    eta: ship.eta,
+    statusLabel: SHIP_STATUS_LABELS[ship.status],
+    toneClass: SHIP_STATUS_TONES[ship.status],
+  }
+}
+
+function toSuggestionDisplay(suggestion: Suggestion): SuggestionDisplay {
+  return {
+    id: suggestion.id,
+    title: suggestion.title,
+    description: suggestion.description,
+    badge: suggestion.badge,
+    toneClass: SUGGESTION_TONE_CLASSES[suggestion.tone],
+    Icon: SUGGESTION_ICONS[suggestion.kind],
+  }
+}
+
+function der3t24NpUrJMNunMMASmhAM953bFGeLXzN7(data: typeof MOCK_LOGISTICS) {
+  return {
+    map: toMapDisplay(data.map),
+    weather: toWeatherDisplay(data.weather),
+    ships: data.ships.map(toShipDisplay),
+    suggestions: data.suggestions.map(toSuggestionDisplay),
+  }
+}
 
 export function LogisticsView() {
+  const [todayLabel, setTodayLabel] = useState<string | null>(null)
+
+  useEffect(() => {
+    setTodayLabel(formatToday(new Date()))
+  }, [])
+
+  const logisticsPresentation = der3t24NpUrJMNunMMASmhAM953bFGeLXzN7(MOCK_LOGISTICS)
+
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+          Logistics Overview{' '}
+          <span className="font-normal text-muted-foreground">
+            | {MOCK_LOGISTICS.header.presenterName} | {todayLabel ?? ''}
+          </span>
+        </h1>
+      </div>
+
       <div className="relative overflow-hidden rounded-2xl border border-border bg-[#0a1018]">
         <img
-          src="/world-dark.png"
-          alt="Mapa-múndi de logística global"
+          src={logisticsPresentation.map.imageSrc}
+          alt={logisticsPresentation.map.imageAlt}
           className="absolute inset-0 size-full object-cover opacity-60"
         />
         <button className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-lg border border-neon-green/40 bg-background/70 px-3 py-2 text-sm text-neon-green backdrop-blur transition-colors hover:bg-neon-green/10">
@@ -93,12 +193,7 @@ export function LogisticsView() {
           className="relative h-[460px] w-full"
           preserveAspectRatio="xMidYMid slice"
         >
-          {/* active blue shipping routes */}
-          {[
-            'M180 250 Q320 150 520 175 T860 230',
-            'M180 250 Q300 320 520 215 T880 300',
-            'M520 175 Q700 120 860 230',
-          ].map((d, i) => (
+          {logisticsPresentation.map.activeRoutes.map((d, i) => (
             <path
               key={i}
               d={d}
@@ -108,9 +203,8 @@ export function LogisticsView() {
               opacity="0.7"
             />
           ))}
-          {/* orange alternative route via Cape of Good Hope */}
           <path
-            d="M540 175 Q560 320 540 420 Q520 460 560 440 Q760 360 800 220"
+            d={logisticsPresentation.map.alternativeRoute}
             fill="none"
             stroke="var(--neon-amber)"
             strokeWidth="2"
@@ -119,53 +213,71 @@ export function LogisticsView() {
             style={{ animation: 'route-dash 4s linear infinite' }}
           />
 
-          {/* conflict zones */}
-          {conflicts.map((c) => (
-            <g key={c.label}>
-              <circle cx={c.x} cy={c.y} r="22" fill="var(--neon-red)" opacity="0.18" />
-              <circle cx={c.x} cy={c.y} r="6" fill="var(--neon-red)">
-                <animate attributeName="opacity" from="1" to="0.4" dur="1.5s" repeatCount="indefinite" />
+          {logisticsPresentation.map.conflicts.map((conflict) => (
+            <g key={conflict.id}>
+              <circle
+                cx={conflict.x}
+                cy={conflict.y}
+                r="22"
+                fill="var(--neon-red)"
+                opacity="0.18"
+              />
+              <circle cx={conflict.x} cy={conflict.y} r="6" fill="var(--neon-red)">
+                <animate
+                  attributeName="opacity"
+                  from="1"
+                  to="0.4"
+                  dur="1.5s"
+                  repeatCount="indefinite"
+                />
               </circle>
               <rect
-                x={c.x + 12}
-                y={c.y - 12}
-                width={c.label.length * 7 + 14}
+                x={conflict.x + 12}
+                y={conflict.y - 12}
+                width={conflict.label.length * 7 + 14}
                 height="20"
                 rx="4"
                 fill="var(--background)"
                 opacity="0.85"
               />
-              <text x={c.x + 19} y={c.y + 2} fill="var(--foreground)" fontSize="11">
-                {c.label}
+              <text
+                x={conflict.x + 19}
+                y={conflict.y + 2}
+                fill="var(--foreground)"
+                fontSize="11"
+              >
+                {conflict.label}
               </text>
             </g>
           ))}
         </svg>
 
-        {/* Weather Alerts overlay */}
         <Panel className="absolute left-4 top-4 z-10 w-72 max-w-[80%] bg-background/85 backdrop-blur">
           <div className="mb-2 flex items-center justify-between">
             <span className="flex items-center gap-2 text-base font-semibold text-foreground">
-              <CloudRain className="size-5 text-neon-cyan" /> Weather Alerts
+              <CloudRain className="size-5 text-neon-cyan" />{' '}
+              {logisticsPresentation.weather.title}
             </span>
             <MoreHorizontal className="size-4 text-muted-foreground" />
           </div>
           <p className="mb-3 text-xs text-muted-foreground">
-            Cyclone warning in Pacific, heavy storms near India
+            {logisticsPresentation.weather.summary}
           </p>
           <ul className="space-y-2 border-t border-border pt-3 text-xs">
-            {weatherRows.map((r, i) => (
+            {logisticsPresentation.weather.rows.map((row, i) => (
               <li key={i} className="flex items-center justify-between">
-                <span className="text-muted-foreground">{r.label}</span>
-                <span className={r.tone}>{r.value}</span>
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className={row.toneClass}>{row.value}</span>
               </li>
             ))}
           </ul>
           <ul className="mt-3 space-y-2 border-t border-border pt-3 text-xs">
-            {legend.map((l, i) => (
+            {logisticsPresentation.weather.legend.map((item, i) => (
               <li key={i} className="flex items-center justify-between">
-                <span className="text-muted-foreground">{l.label}</span>
-                <span className={`font-medium ${l.color}`}>{l.value}</span>
+                <span className="text-muted-foreground">{item.label}</span>
+                <span className={`font-medium ${item.toneClass}`}>
+                  {item.value}
+                </span>
               </li>
             ))}
           </ul>
@@ -175,7 +287,7 @@ export function LogisticsView() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Panel>
           <div className="mb-4 flex items-center gap-2">
-            <Ship className="size-5 text-neon-cyan" />
+            <ShipIcon className="size-5 text-neon-cyan" />
             <h3 className="text-base font-semibold text-foreground">
               ETA &amp; Status
             </h3>
@@ -186,15 +298,15 @@ export function LogisticsView() {
             <span className="text-right">Status</span>
           </div>
           <ul>
-            {ships.map((s, i) => (
+            {logisticsPresentation.ships.map((ship) => (
               <li
-                key={i}
+                key={ship.id}
                 className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b border-border py-3 text-sm last:border-b-0"
               >
-                <span className="text-foreground">Ship: {s.n}</span>
-                <span className="text-muted-foreground">{s.eta}</span>
-                <span className={`text-right font-medium ${s.tone}`}>
-                  {s.status}
+                <span className="text-foreground">Ship: {ship.name}</span>
+                <span className="text-muted-foreground">{ship.eta}</span>
+                <span className={`text-right font-medium ${ship.toneClass}`}>
+                  {ship.statusLabel}
                 </span>
               </li>
             ))}
@@ -214,22 +326,26 @@ export function LogisticsView() {
             &quot;AI recommendations based on Geopolitical Risk Assessment&quot;
           </p>
           <ul className="space-y-1">
-            {suggestions.map((s, i) => {
-              const Icon = s.Icon
+            {logisticsPresentation.suggestions.map((suggestion) => {
+              const Icon = suggestion.Icon
               return (
                 <li
-                  key={i}
+                  key={suggestion.id}
                   className="flex items-start gap-3 border-b border-border py-3 last:border-b-0"
                 >
                   <Icon className="mt-0.5 size-4 shrink-0 text-neon-red" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">{s.t}</p>
-                    <p className="text-xs text-muted-foreground">{s.d}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {suggestion.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {suggestion.description}
+                    </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold ${s.tone}`}
+                    className={`shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold ${suggestion.toneClass}`}
                   >
-                    {s.badge}
+                    {suggestion.badge}
                   </span>
                 </li>
               )

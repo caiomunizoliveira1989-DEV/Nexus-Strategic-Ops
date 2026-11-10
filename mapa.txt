@@ -1,0 +1,20 @@
+]633;E;{ echo "== components =="\x3b ls components\x3b echo "== dashboard =="\x3b ls components/dashboard\x3b echo "== Compliance =="\x3b grep -rln Compliance components app\x3b echo "== useSession =="\x3b grep -rln useSession components app\x3b } > mapa.txt;4310ae68-4f62-4d67-a5bc-893f564329ca]633;C== components ==
+dashboard/
+layout/
+profile/
+RealMap.tsx
+ui/
+== dashboard ==
+agriculture-map-panel.tsx
+generate-report-button.tsx
+network-map.tsx
+panel.tsx
+top-nav.tsx
+views/
+== Compliance ==
+components/dashboard/top-nav.tsx
+components/dashboard/views/compliance-view.tsx
+components/dashboard/views/home-view.tsx
+app/page.tsx
+== useSession ==
+components/dashboard/top-nav.tsx

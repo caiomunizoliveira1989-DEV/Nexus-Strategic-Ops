@@ -182,3 +182,32 @@
 .animate-live {
   animation: live-blink 1.4s ease-in-out infinite;
 }
+
+/* ==========================================================
+   ESCALA GLOBAL — a vista inteira cresce com a janela
+   Base 16px. 24px equivale a +50%.
+   ========================================================== */
+@media (min-width: 1600px) { html { font-size: 18px; } }
+@media (min-width: 1800px) { html { font-size: 20px; } }
+@media (min-width: 2000px) { html { font-size: 22px; } }
+@media (min-width: 2300px) { html { font-size: 24px; } }
+
+/* ==========================================================
+   HOVER NOS CARDS DE TODAS AS VISTAS
+   Aplica em qualquer card com fundo bg-card/*
+   Ignora o mapa e ignora cards que contenham outros cards.
+   ========================================================== */
+@media (hover: hover) and (min-width: 1024px) {
+  body [class*="bg-card/"]:not(:has([class*="bg-card/"])):not(:has(.leaflet-container)) {
+    transition: transform 0.22s ease, box-shadow 0.22s ease,
+      border-color 0.22s ease;
+  }
+
+  body [class*="bg-card/"]:not(:has([class*="bg-card/"])):not(:has(.leaflet-container)):hover {
+    transform: scale(1.05);
+    position: relative;
+    z-index: 30;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.65);
+    border-color: rgba(52, 211, 153, 0.45);
+  }
+}

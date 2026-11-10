@@ -9,7 +9,7 @@ import { ComplianceView } from '@/components/dashboard/views/compliance-view'
 import { LogisticsView } from '@/components/dashboard/views/logistics-view'
 
 export default function Page() {
-  const [active, setActive] = useState<TabId>('agriculture')
+  const [active, setActive] = useState<TabId>('dashboard')
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,8 +21,8 @@ export default function Page() {
         }}
       />
       <div className="relative z-10">
-        <TopNav active={active} onChange={setActive} />
-        <main className="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
+        <TopNav activeTab={active} onTabChange={setActive} />
+        <main className="mx-auto max-w-[112.5rem] px-4 py-6 lg:px-6">
           <div key={active} className="animate-view">
             {active === 'dashboard' && <HomeView />}
             {active === 'agriculture' && <AgricultureView />}

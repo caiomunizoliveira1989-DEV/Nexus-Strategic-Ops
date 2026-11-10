@@ -14,3 +14,20 @@ node_modules
 .next/
 .DS_Store
 tsconfig.tsbuildinfo
+.env.local
+
+prisma/*.db
+prisma/*.db-journal
+
+# artefatos locais e backups de sessao
+node_modules/
+*.bak
+*.bak-*
+.env
+*.tsbuildinfo
+
+# artefatos locais e backups
+*.bak*
+*.antes-rewrite
+*.orig
+*.rej

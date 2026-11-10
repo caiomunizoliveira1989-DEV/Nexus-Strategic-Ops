@@ -1,159 +1,155 @@
 'use client'
 
+import { useCallback, useState } from 'react'
 import {
   Bell,
   LayoutDashboard,
   Leaf,
-  Network,
   Search,
   ShieldCheck,
+  Target,
   Truck,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import type { LucideIcon } from 'lucide-react'
+import { UserMenu } from '@/components/layout/user-menu'
+import { useI18n } from '@/lib/context/i18n-context'
+import type { TranslationKey } from '@/lib/i18n/dictionary'
 
-export type TabId =
+export type ViewId =
   | 'dashboard'
   | 'agriculture'
   | 'strategy'
   | 'compliance'
   | 'logistics'
 
-type Accent = 'blue' | 'green' | 'cyan'
+export type TabId = ViewId
 
-export const TABS: {
-  id: TabId
-  label: string
-  icon: typeof LayoutDashboard
-  accent: Accent
-}[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, accent: 'blue' },
-  { id: 'agriculture', label: 'Agriculture', icon: Leaf, accent: 'green' },
-  { id: 'strategy', label: 'Strategy', icon: Network, accent: 'green' },
-  { id: 'compliance', label: 'Compliance', icon: ShieldCheck, accent: 'green' },
-  { id: 'logistics', label: 'Logistics', icon: Truck, accent: 'cyan' },
+const TABS: ReadonlyArray<{
+  id: ViewId
+  key: TranslationKey
+  icon: LucideIcon
+}> = [
+  { id: 'dashboard', key: 'nav.dashboard', icon: LayoutDashboard },
+  { id: 'agriculture', key: 'nav.agriculture', icon: Leaf },
+  { id: 'strategy', key: 'nav.strategy', icon: Target },
+  { id: 'compliance', key: 'nav.compliance', icon: ShieldCheck },
+  { id: 'logistics', key: 'nav.logistics', icon: Truck },
 ]
 
-const accentClasses: Record<Accent, { active: string; glow: string }> = {
-  blue: {
-    active:
-      'bg-neon-blue/15 text-neon-blue border-neon-blue/50 text-glow-blue',
-    glow: 'shadow-[0_0_18px_-4px_var(--neon-blue)]',
-  },
-  green: {
-    active:
-      'bg-neon-green/15 text-neon-green border-neon-green/50 text-glow-green',
-    glow: 'shadow-[0_0_18px_-4px_var(--neon-green)]',
-  },
-  cyan: {
-    active:
-      'bg-neon-cyan/15 text-neon-cyan border-neon-cyan/50 text-glow-cyan',
-    glow: 'shadow-[0_0_18px_-4px_var(--neon-cyan)]',
-  },
+export type TopNavProps = {
+  activeView?: ViewId
+  activeTab?: ViewId
+  currentView?: ViewId
+  view?: ViewId
+  onNavigate?: (view: ViewId) => void
+  onTabChange?: (view: ViewId) => void
+  onViewChange?: (view: ViewId) => void
+  onSelect?: (view: ViewId) => void
+  userName?: string
+  userRole?: string
+  [key: string]: unknown
 }
 
-function NexusLogo() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <svg
-        viewBox="0 0 32 32"
-        className="size-7 text-neon-green"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M6 24V8l20 16V8"
-          stroke="url(#nx)"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <defs>
-          <linearGradient id="nx" x1="6" y1="8" x2="26" y2="24">
-            <stop stopColor="var(--neon-green)" />
-            <stop offset="1" stopColor="var(--neon-blue)" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <div className="leading-none">
-        <span className="text-lg font-bold tracking-wide text-foreground">
-          NEXUS
-        </span>
-        <span className="block text-[9px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-          Strategic Ops
-        </span>
-      </div>
-    </div>
+export function TopNav(props: TopNavProps) {
+  const { t } = useI18n()
+  const [internal, setInternal] = useState<ViewId>('agriculture')
+  const [search, setSearch] = useState('')
+
+  const current =
+    props.activeView ??
+    props.activeTab ??
+    props.currentView ??
+    props.view ??
+    internal
+
+  const notify =
+    props.onNavigate ??
+    props.onTabChange ??
+    props.onViewChange ??
+    props.onSelect
+
+  const handleSelect = useCallback(
+    (view: ViewId) => {
+      setInternal(view)
+      notify?.(view)
+    },
+    [notify],
   )
-}
 
-export function TopNav({
-  active,
-  onChange,
-}: {
-  active: TabId
-  onChange: (id: TabId) => void
-}) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
-        <NexusLogo />
+      <div className="mx-auto flex max-w-[112.5rem] flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-9 place-items-center rounded-lg border border-neon-green/40 bg-neon-green/10">
+            <Leaf className="size-4 text-neon-green" />
+          </span>
+          <div className="leading-tight">
+            <p className="text-sm font-bold tracking-wide text-foreground">
+              NEXUS
+            </p>
+            <p className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
+              {t('brand.tagline')}
+            </p>
+          </div>
+        </div>
 
-        <nav className="order-3 flex w-full flex-wrap items-center gap-1.5 rounded-xl border border-border bg-card/50 p-1.5 lg:order-2 lg:ml-4 lg:w-auto">
+        <nav
+          aria-label={t('common.views')}
+          className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 lg:order-2 lg:w-auto lg:flex-1 lg:overflow-visible lg:pb-0"
+        >
           {TABS.map((tab) => {
             const Icon = tab.icon
-            const isActive = active === tab.id
-            const a = accentClasses[tab.accent]
+            const active = tab.id === current
+
             return (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => onChange(tab.id)}
-                aria-current={isActive ? 'page' : undefined}
-                className={cn(
-                  'flex items-center gap-2 rounded-lg border border-transparent px-3.5 py-2 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? cn(a.active, a.glow)
-                    : 'text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground',
-                )}
+                onClick={() => handleSelect(tab.id)}
+                aria-current={active ? 'page' : undefined}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
+                  active
+                    ? 'bg-neon-green/15 text-neon-green'
+                    : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                }`}
               >
-                <Icon className="size-4" />
-                <span>{tab.label}</span>
+                <Icon className="size-3.5 shrink-0" />
+                <span>{t(tab.key)}</span>
               </button>
             )
           })}
         </nav>
 
         <div className="order-2 ml-auto flex items-center gap-2 lg:order-3">
-          <button
-            type="button"
-            aria-label="Buscar"
-            className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-neon-cyan/50 hover:text-neon-cyan"
+          <form
+            onSubmit={(event) => event.preventDefault()}
+            className="hidden items-center gap-1.5 rounded-lg border border-border bg-card/40 px-2.5 py-1.5 md:flex"
           >
-            <Search className="size-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="Notificações"
-            className="relative grid size-9 place-items-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-neon-cyan/50 hover:text-neon-cyan"
-          >
-            <Bell className="size-4" />
-            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-neon-red" />
-          </button>
-          <div className="flex items-center gap-2.5 rounded-lg border border-border bg-card/50 py-1 pl-1 pr-3">
-            <img
-              src="/avatar-director.png"
-              alt="Avatar de Sarah Jenkins"
-              className="size-8 rounded-md object-cover"
+            <Search className="size-3.5 shrink-0 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t('common.search')}
+              className="w-28 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground/70 lg:w-40"
             />
-            <div className="hidden leading-tight sm:block">
-              <p className="text-sm font-semibold text-foreground">
-                Sarah Jenkins
-              </p>
-              <p className="text-[11px] text-muted-foreground">Director</p>
-            </div>
-          </div>
+          </form>
+
+          <button
+            type="button"
+            aria-label={t('common.alerts')}
+            className="relative grid size-8 place-items-center rounded-lg border border-border bg-card/40 text-muted-foreground transition-colors hover:border-neon-green/40 hover:text-foreground"
+          >
+            <Bell className="size-3.5" />
+            <span className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+              3
+            </span>
+          </button>
+
+          <UserMenu name={props.userName} role={props.userRole} />
         </div>
       </div>
     </header>
   )
 }
+
+export default TopNav
