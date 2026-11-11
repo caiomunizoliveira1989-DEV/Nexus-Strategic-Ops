@@ -67,10 +67,10 @@ const SUPPLIER_VISUALS: Record<
 }
 
 const SUPPLIER_STATUS_LABELS: Record<SupplierContactStatus, string> = {
-  contacted: 'Contacted',
-  pending: 'Pending',
-  follow_up_required: 'Follow-up Required',
-  completed: 'Completed',
+  contacted: 'Contatado',
+  pending: 'Pendente',
+  follow_up_required: 'Acompanhamento necessário',
+  completed: 'Concluído',
 }
 
 type HeaderDisplay = {
@@ -147,7 +147,7 @@ const RECOMMENDATION_VISUAL: RecommendationVisual = {
 }
 
 function formatDate(timestamp: string): string {
-  return new Date(timestamp).toLocaleDateString('en-US', {
+  return new Date(timestamp).toLocaleDateString('pt-BR', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -156,9 +156,8 @@ function formatDate(timestamp: string): string {
 }
 
 function formatToday(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return date.toLocaleDateString('pt-BR', {
+    month: 'long',
     year: 'numeric',
   })
 }
@@ -168,7 +167,7 @@ function toHeaderDisplay(
   todayLabel: string,
 ): HeaderDisplay {
   return {
-    overviewLabel: `| ${header.presenterName} | ${todayLabel}`,
+    overviewLabel: `| ${todayLabel}`,
     calendarDateLabel: todayLabel,
   }
 }
@@ -182,7 +181,7 @@ function toFinancialDisplay(
     growthClass: visual.growthClass,
     revenueLabel: `${visual.currencySymbol}${financial.revenueMEur.toFixed(1)}${visual.unitSuffix}`,
     chartData: financial.points.map((point) => ({
-      periodLabel: new Date(point.date).toLocaleDateString('en-US', {
+      periodLabel: new Date(point.date).toLocaleDateString('pt-BR', {
         month: 'short',
         day: 'numeric',
         timeZone: 'UTC',
@@ -235,7 +234,7 @@ function toSupplierDisplay(
     id: supplier.id,
     name: supplier.name,
     statusLabel: SUPPLIER_STATUS_LABELS[supplier.status],
-    timeLabel: new Date(supplier.lastContactedAt).toLocaleTimeString('en-US', {
+    timeLabel: new Date(supplier.lastContactedAt).toLocaleTimeString('pt-BR', {
       hour: 'numeric',
       minute: '2-digit',
       timeZone: 'UTC',
@@ -261,7 +260,7 @@ function getRecommendationText(recommendation: StrategyRecommendation): string {
     case 'supply_chain':
       return `Optimize supply chain routes in ${recommendation.region} region by ${recommendation.costReductionPct}% to reduce costs`
     case 'research_investment':
-      return `Invest ${recommendation.investmentPct}% in R&D for ${recommendation.sector} ${recommendation.focus} (due ${new Date(recommendation.dueDate).toLocaleDateString('en-US', {
+      return `Invest ${recommendation.investmentPct}% in R&D for ${recommendation.sector} ${recommendation.focus} (due ${new Date(recommendation.dueDate).toLocaleDateString('pt-BR', {
         month: 'numeric',
         day: 'numeric',
         timeZone: 'UTC',
@@ -305,7 +304,7 @@ export function StrategyView() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          Nexus Strategic Overview{' '}
+          Visão Geral Estratégica{' '}
           <span className="font-normal text-muted-foreground">
             {strategyPresentation.header.overviewLabel}
           </span>
@@ -320,7 +319,7 @@ export function StrategyView() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
           <div className="mb-2 flex items-start justify-between">
-            <PanelTitle className="mb-0">Financial Impact Analysis</PanelTitle>
+            <PanelTitle className="mb-0">Análise de Impacto Financeiro</PanelTitle>
             <div className="text-right">
               <p className={`text-xs font-semibold ${strategyPresentation.financial.growthClass}`}>
                 {strategyPresentation.financial.growthLabel}
@@ -332,13 +331,13 @@ export function StrategyView() {
           </div>
           <div className="mb-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-neon-blue" /> Revenue
+              <span className="size-2.5 rounded-full bg-neon-blue" /> Receita
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-neon-green" /> Cost
+              <span className="size-2.5 rounded-full bg-neon-green" /> Custo
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full bg-neon-cyan" /> Profit
+              <span className="size-2.5 rounded-full bg-neon-cyan" /> Lucro
             </span>
           </div>
           <div className="h-72 w-full">
@@ -389,14 +388,14 @@ export function StrategyView() {
           </div>
         </Panel>
         <Panel>
-          <PanelTitle>Insights &amp; Actions</PanelTitle>
+          <PanelTitle>Insights e Ações</PanelTitle>
           <div className="rounded-xl border border-neon-green/30 bg-neon-green/5 p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <span className="grid size-7 place-items-center rounded-lg bg-neon-blue/15 text-neon-blue">
                   AI
                 </span>
-                Strategist Recommendations
+                Recomendações do Estrategista
               </span>
               <Lightbulb className="size-5 text-neon-green text-glow-green" />
             </div>
@@ -418,10 +417,10 @@ export function StrategyView() {
         <Panel>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-semibold text-foreground">
-              Market Demand vs Supply
+              Demanda vs Oferta de Mercado
             </h3>
             <span className="text-xs text-muted-foreground">
-              Gap: <span className="text-neon-cyan">{strategyPresentation.market.gapLabel}</span>
+              Lacuna: <span className="text-neon-cyan">{strategyPresentation.market.gapLabel}</span>
             </span>
           </div>
           <div className="h-56 w-full">
@@ -462,13 +461,13 @@ export function StrategyView() {
         <Panel>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-semibold text-foreground">
-              Resource Allocation Metrics
+              Métricas de Alocação de Recursos
             </h3>
             <div className="text-right">
               <p className="text-lg font-bold text-foreground">
                 {strategyPresentation.allocation.efficiencyLabel}
               </p>
-              <p className="text-[10px] text-muted-foreground">Efficiency</p>
+              <p className="text-[10px] text-muted-foreground">Eficiência</p>
             </div>
           </div>
           <div className="h-56 w-full">
@@ -507,7 +506,7 @@ export function StrategyView() {
           </div>
         </Panel>
         <Panel>
-          <PanelTitle>Automated Supplier Contact Status</PanelTitle>
+          <PanelTitle>Status de Contato com Fornecedores</PanelTitle>
           <ul className="space-y-1">
             {strategyPresentation.suppliers.map((supplier) => {
               const SupplierIcon = STRATEGY_ICONS[supplier.icon]

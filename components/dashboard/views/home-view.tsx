@@ -184,7 +184,7 @@ export function HomeView() {
                 <Line
                   type="monotone"
                   dataKey="revenue"
-                  name="Revenue Trend"
+                  name="Tendência de Receita"
                   stroke="var(--neon-cyan)"
                   strokeWidth={2.5}
                   dot={false}
