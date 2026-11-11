@@ -255,18 +255,26 @@ function toRecommendationDisplay(
   }
 }
 
+const RESEARCH_FOCUS_LABELS: Record<string, string> = {
+  sustainability: 'sustentabilidade',
+}
+
 function getRecommendationText(recommendation: StrategyRecommendation): string {
   switch (recommendation.kind) {
     case 'supply_chain':
-      return `Optimize supply chain routes in ${recommendation.region} region by ${recommendation.costReductionPct}% to reduce costs`
-    case 'research_investment':
-      return `Invest ${recommendation.investmentPct}% in R&D for ${recommendation.sector} ${recommendation.focus} (due ${new Date(recommendation.dueDate).toLocaleDateString('pt-BR', {
+      return `Otimizar rotas da cadeia de suprimentos na região ${recommendation.region} em ${recommendation.costReductionPct}% para reduzir custos`
+    case 'research_investment': {
+      const focus = recommendation.focus
+        ? RESEARCH_FOCUS_LABELS[recommendation.focus] ?? recommendation.focus
+        : ''
+      return `Investir ${recommendation.investmentPct}% em P&D em ${recommendation.sector} ${focus} (vence em ${new Date(recommendation.dueDate).toLocaleDateString('pt-BR', {
         month: 'numeric',
         day: 'numeric',
         timeZone: 'UTC',
       })})`
+    }
     case 'competitor_compliance':
-      return `Analyze competitor compliance changes in ${recommendation.region}`
+      return `Analisar mudanças de conformidade de concorrentes em ${recommendation.region}`
   }
 }
 
