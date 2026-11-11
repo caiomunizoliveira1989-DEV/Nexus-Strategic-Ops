@@ -1,18 +1,19 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import {
-  Bell,
   LayoutDashboard,
   Leaf,
-  Search,
   ShieldCheck,
   Target,
   Truck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { UserMenu } from '@/components/layout/user-menu'
+import { NotificationsBell } from '@/components/layout/notifications-bell'
 import { useI18n } from '@/lib/context/i18n-context'
+import { useView } from '@/lib/context/view-context'
+import { usePathname, useRouter } from 'next/navigation'
 import type { TranslationKey } from '@/lib/i18n/dictionary'
 
 export type ViewId =
@@ -52,26 +53,29 @@ export type TopNavProps = {
 
 export function TopNav(props: TopNavProps) {
   const { t } = useI18n()
-  const [internal, setInternal] = useState<ViewId>('agriculture')
-  const [search, setSearch] = useState('')
+  const { active: contextView, setActive: setContextView } = useView()
+  const router = useRouter()
+  const pathname = usePathname()
 
   const current =
     props.activeView ??
     props.activeTab ??
     props.currentView ??
     props.view ??
-    internal
+    contextView
 
   const notify =
     props.onNavigate ??
     props.onTabChange ??
     props.onViewChange ??
-    props.onSelect
+    props.onSelect ??
+    setContextView
 
   const handleSelect = useCallback(
     (view: ViewId) => {
-      setInternal(view)
+      setContextView(view)
       notify?.(view)
+      if (pathname !== '/') router.push('/')
     },
     [notify],
   )
@@ -95,7 +99,7 @@ export function TopNav(props: TopNavProps) {
 
         <nav
           aria-label={t('common.views')}
-          className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 lg:order-2 lg:w-auto lg:flex-1 lg:overflow-visible lg:pb-0"
+          className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 lg:order-2 lg:ml-auto lg:w-auto lg:overflow-visible lg:pb-0"
         >
           {TABS.map((tab) => {
             const Icon = tab.icon
@@ -120,33 +124,11 @@ export function TopNav(props: TopNavProps) {
           })}
         </nav>
 
-        <div className="order-2 ml-auto flex items-center gap-2 lg:order-3">
-          <form
-            onSubmit={(event) => event.preventDefault()}
-            className="hidden items-center gap-1.5 rounded-lg border border-border bg-card/40 px-2.5 py-1.5 md:flex"
-          >
-            <Search className="size-3.5 shrink-0 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t('common.search')}
-              className="w-28 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground/70 lg:w-40"
-            />
-          </form>
-
-          <button
-            type="button"
-            aria-label={t('common.alerts')}
-            className="relative grid size-8 place-items-center rounded-lg border border-border bg-card/40 text-muted-foreground transition-colors hover:border-neon-green/40 hover:text-foreground"
-          >
-            <Bell className="size-3.5" />
-            <span className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-              3
-            </span>
-          </button>
-
+        <div className="order-2 ml-auto flex shrink-0 items-center gap-2 lg:order-3 lg:ml-0">
+          <NotificationsBell />
           <UserMenu name={props.userName} role={props.userRole} />
         </div>
+
       </div>
     </header>
   )

@@ -4,7 +4,7 @@ export type SupplierContactStatus =
   | 'follow_up_required'
   | 'completed'
 
-export type AllocationResource = 'Capital' | 'Human' | 'Equipment' | 'R&D'
+export type AllocationResource = 'Capital' | 'Humano' | 'Equipamentos' | 'P&D'
 
 export interface StrategyHeader {
   presenterName: string

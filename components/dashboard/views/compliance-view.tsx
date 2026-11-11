@@ -30,8 +30,8 @@ const CHECKLIST_TONE_CLASSES: Record<ChecklistTone, string> = {
 }
 
 const CHECKLIST_STATUS_LABELS: Record<ComplianceStatus, string> = {
-  verified: 'VERIFIED',
-  pending: 'PENDING',
+  verified: 'VERIFICADO',
+  pending: 'PENDENTE',
 }
 
 const CHECKLIST_TONES: Record<ComplianceStatus, ChecklistTone> = {
@@ -70,7 +70,7 @@ type MapDisplay = {
 }
 
 function formatDate(timestamp: string): string {
-  return new Date(timestamp).toLocaleDateString('en-US', {
+  return new Date(timestamp).toLocaleDateString('pt-BR', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -79,9 +79,8 @@ function formatDate(timestamp: string): string {
 }
 
 function formatToday(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return date.toLocaleDateString('pt-BR', {
+    month: 'long',
     year: 'numeric',
   })
 }
@@ -117,7 +116,7 @@ function toCarbonPointDisplay(point: CarbonCreditPoint) {
 function toCarbonDisplay(carbon: CarbonCreditData): CarbonDisplay {
   return {
     growthLabel: `+${carbon.growthPct.toFixed(1)}%`,
-    balanceLabel: `${carbon.currentBalanceTons.toLocaleString('en-US')} tCO2e`,
+    balanceLabel: `${carbon.currentBalanceTons.toLocaleString('pt-BR')} tCO2e`,
     chartData: carbon.points.map(toCarbonPointDisplay),
   }
 }
@@ -154,9 +153,9 @@ export function ComplianceView() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          Compliance Overview{' '}
+          Visão Geral de Conformidade{' '}
           <span className="font-normal text-muted-foreground">
-            | {MOCK_COMPLIANCE.header.presenterName} | {todayLabel ?? ''}
+            | {todayLabel ?? ''}
           </span>
         </h1>
         <GenerateReportButton accent="cyan" />
@@ -216,7 +215,7 @@ export function ComplianceView() {
         <div className="space-y-6">
           <Panel>
             <h3 className="mb-4 text-base font-semibold text-foreground">
-              Compliance Checklist
+              Checklist de Conformidade
             </h3>
             <div className="mb-2 flex items-center justify-between rounded-lg bg-accent px-3 py-2.5">
               <span className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -230,7 +229,7 @@ export function ComplianceView() {
             <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-1 pb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
               <span>Item</span>
               <span className="text-right">Status</span>
-              <span className="text-right">Icon</span>
+              <span className="text-right">Ícone</span>
             </div>
             <ul>
               {compliancePresentation.checklist.items.map((item) => (
@@ -246,7 +245,7 @@ export function ComplianceView() {
                       </p>
                       <div className="mt-1 flex items-center gap-2">
                         <span className="rounded bg-neon-cyan/10 px-1.5 py-0.5 text-[10px] font-semibold text-neon-cyan">
-                          AI VERIFIED
+                          VERIFICADO POR IA
                         </span>
                         {item.verifiedLabel && (
                           <span className="text-[11px] text-muted-foreground">
@@ -274,7 +273,7 @@ export function ComplianceView() {
           <Panel>
             <div className="mb-1 flex items-start justify-between">
               <h3 className="text-base font-semibold text-foreground">
-                Carbon Credit Balance
+                Saldo de Créditos de Carbono
               </h3>
               <p className="text-sm font-semibold text-neon-green">
                 {compliancePresentation.carbon.growthLabel}
@@ -282,12 +281,12 @@ export function ComplianceView() {
             </div>
             <div className="mb-4 flex items-end justify-between">
               <p className="text-sm text-muted-foreground">
-                Current Balance:{' '}
+                Saldo Atual:{' '}
                 <span className="font-bold text-foreground">
                   {compliancePresentation.carbon.balanceLabel}
                 </span>
               </p>
-              <p className="text-xs text-muted-foreground">Monthly Growth</p>
+              <p className="text-xs text-muted-foreground">Crescimento Mensal</p>
             </div>
             <div className="h-52 w-full">
               <ResponsiveContainer width="100%" height="100%">

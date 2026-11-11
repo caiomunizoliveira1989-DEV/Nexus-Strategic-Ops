@@ -25,7 +25,7 @@ export function GenerateReportButton({
       )}
     >
       <FileText className="size-4" />
-      Generate Report
+      Gerar Relatório
     </button>
   )
 }

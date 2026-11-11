@@ -93,7 +93,6 @@ export function HomeView() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           STRATEGIC OVERVIEW DASHBOARD{' '}
-          <span className="font-normal text-muted-foreground">| Sarah J.</span>
         </h1>
         <GenerateReportButton accent="magenta" />
       </div>

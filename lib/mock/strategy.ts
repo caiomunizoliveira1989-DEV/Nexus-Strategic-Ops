@@ -31,9 +31,9 @@ export const MOCK_STRATEGY: StrategyDashboardData = {
     efficiencyPct: 82,
     metrics: [
       { resource: 'Capital', allocationPct: 82 },
-      { resource: 'Human', allocationPct: 72 },
-      { resource: 'Equipment', allocationPct: 50 },
-      { resource: 'R&D', allocationPct: 32 },
+      { resource: 'Humano', allocationPct: 72 },
+      { resource: 'Equipamentos', allocationPct: 50 },
+      { resource: 'P&D', allocationPct: 32 },
     ],
   },
   suppliers: [

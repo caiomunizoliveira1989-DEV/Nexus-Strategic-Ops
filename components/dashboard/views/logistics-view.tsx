@@ -52,8 +52,8 @@ const WEATHER_TONE_CLASSES: Record<WeatherRow['tone'], string> = {
 }
 
 const SHIP_STATUS_LABELS: Record<ShipStatus, string> = {
-  en_route: 'En Route',
-  conflict_zone: 'Conflict Zone',
+  en_route: 'Em Rota',
+  conflict_zone: 'Zona de Conflito',
 }
 
 const SHIP_STATUS_TONES: Record<ShipStatus, string> = {
@@ -94,9 +94,8 @@ type MapDisplay = {
 }
 
 function formatToday(date: Date): string {
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return date.toLocaleDateString('pt-BR', {
+    month: 'long',
     year: 'numeric',
   })
 }
@@ -171,9 +170,9 @@ export function LogisticsView() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          Logistics Overview{' '}
+          Visão Geral de Logística{' '}
           <span className="font-normal text-muted-foreground">
-            | {MOCK_LOGISTICS.header.presenterName} | {todayLabel ?? ''}
+            | {todayLabel ?? ''}
           </span>
         </h1>
       </div>
@@ -185,7 +184,7 @@ export function LogisticsView() {
           className="absolute inset-0 size-full object-cover opacity-60"
         />
         <button className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-lg border border-neon-green/40 bg-background/70 px-3 py-2 text-sm text-neon-green backdrop-blur transition-colors hover:bg-neon-green/10">
-          <Layers className="size-4" /> Layers ▾
+          <Layers className="size-4" /> Camadas ▾
         </button>
 
         <svg
@@ -289,12 +288,12 @@ export function LogisticsView() {
           <div className="mb-4 flex items-center gap-2">
             <ShipIcon className="size-5 text-neon-cyan" />
             <h3 className="text-base font-semibold text-foreground">
-              ETA &amp; Status
+              ETA e Status
             </h3>
           </div>
           <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 border-b border-border pb-2 text-xs text-muted-foreground">
-            <span>Ship</span>
-            <span>ETA</span>
+            <span>Navio</span>
+            <span>Previsão</span>
             <span className="text-right">Status</span>
           </div>
           <ul>
@@ -303,7 +302,7 @@ export function LogisticsView() {
                 key={ship.id}
                 className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b border-border py-3 text-sm last:border-b-0"
               >
-                <span className="text-foreground">Ship: {ship.name}</span>
+                <span className="text-foreground">Navio: {ship.name}</span>
                 <span className="text-muted-foreground">{ship.eta}</span>
                 <span className={`text-right font-medium ${ship.toneClass}`}>
                   {ship.statusLabel}
@@ -319,11 +318,11 @@ export function LogisticsView() {
               ⚙
             </span>
             <h3 className="text-base font-semibold text-foreground">
-              Diplomatic AI Suggestions
+              Sugestões Diplomáticas por IA
             </h3>
           </div>
           <p className="mb-4 text-xs italic text-muted-foreground">
-            &quot;AI recommendations based on Geopolitical Risk Assessment&quot;
+            &quot;Recomendações de IA com base na Avaliação de Risco Geopolítico&quot;
           </p>
           <ul className="space-y-1">
             {logisticsPresentation.suggestions.map((suggestion) => {

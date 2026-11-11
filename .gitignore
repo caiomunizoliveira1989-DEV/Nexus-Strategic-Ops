@@ -31,3 +31,6 @@ node_modules/
 *.antes-rewrite
 *.orig
 *.rej
+
+# desativado apenas no ambiente local
+*.off

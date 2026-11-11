@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   )
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 lg:px-6">
+    <div className="mx-auto max-w-3xl py-2">
       <ProfileForm
         initial={{
           name: user.name,
@@ -31,6 +31,6 @@ export default async function ProfilePage() {
           bio: user.bio ?? '',
         }}
       />
-    </main>
+    </div>
   )
 }

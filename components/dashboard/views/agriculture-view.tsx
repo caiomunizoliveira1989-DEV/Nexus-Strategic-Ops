@@ -166,7 +166,7 @@ export function AgricultureView() {
         })}
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_23.75rem] xl:grid-cols-[minmax(0,1fr)_27.5rem] 2xl:grid-cols-[minmax(0,1fr)_31.25rem]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_23.75rem] xl:grid-cols-[minmax(0,1fr)_27.5rem] 2xl:grid-cols-[minmax(0,1fr)_31.25rem]">
         <div className="relative h-full min-h-[22.5rem] overflow-hidden rounded-xl border border-border lg:min-h-[33.75rem] xl:min-h-[38.75rem]">
           <AgricultureMapPanel />
 
@@ -187,7 +187,7 @@ export function AgricultureView() {
           </div>
         </div>
 
-        <aside className="flex min-h-0 flex-col gap-4">
+        <aside className="flex min-h-0 flex-col gap-4 lg:pl-4">
           <section className={`${panelBase} origin-right p-4`}>
             <header className="mb-3 flex items-center justify-between gap-2">
               <h3 className="text-sm font-semibold text-foreground lg:text-base">

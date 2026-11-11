@@ -381,7 +381,7 @@ export function AgricultureMapPanel() {
         onPick={pickFarm}
       />
 
-      <div className="relative min-w-0 flex-1 max-w-[calc(75%-210px)] overflow-hidden rounded-xl border border-border bg-card/40">
+      <div className="relative min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-card/40">
         <MapContainer
           center={[location.lat, location.lng]}
           zoom={11}
