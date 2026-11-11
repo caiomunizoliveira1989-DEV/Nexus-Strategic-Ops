@@ -88,7 +88,7 @@ type HeaderDisplay = {
 
 type FinancialVisual = {
   growthClass: string
-  currencySymbol: string
+  currencySymbol: 'R$',
   unitSuffix: string
 }
 
