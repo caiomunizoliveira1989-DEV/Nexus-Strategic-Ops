@@ -9,7 +9,7 @@ export const MOCK_STRATEGY: StrategyDashboardData = {
     revenueMEur: 42.1,
     points: [
       { date: '2023-01-01T00:00:00.000Z', revenueMEur: 8, costMEur: 5 },
-      { date: '2023-03-02T00:00:00.000Z', revenueMEur: 13, costMEur: 7 },
+      { date: '2023-02-02T00:00:00.000Z', revenueMEur: 13, costMEur: 7 },
       { date: '2023-03-03T00:00:00.000Z', revenueMEur: 11, costMEur: 6 },
       { date: '2023-04-04T00:00:00.000Z', revenueMEur: 16, costMEur: 9 },
       { date: '2023-08-01T00:00:00.000Z', revenueMEur: 20, costMEur: 13 },

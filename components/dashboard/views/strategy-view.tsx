@@ -146,6 +146,8 @@ const RECOMMENDATION_VISUAL: RecommendationVisual = {
   icon: 'check-circle',
 }
 
+const MONTHS_SHORT = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.']
+
 function formatDate(timestamp: string): string {
   return new Date(timestamp).toLocaleDateString('pt-BR', {
     month: 'short',
@@ -177,15 +179,11 @@ function toFinancialDisplay(
   visual: FinancialVisual,
 ): FinancialDisplay {
   return {
-    growthLabel: `(+${financial.growthPct.toFixed(1)}%)`,
+    growthLabel: `(+${financial.growthPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)`,
     growthClass: visual.growthClass,
-    revenueLabel: `${visual.currencySymbol}${financial.revenueMEur.toFixed(1)}${visual.unitSuffix}`,
+    revenueLabel: `${visual.currencySymbol}${financial.revenueMEur.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${visual.unitSuffix}`,
     chartData: financial.points.map((point) => ({
-      periodLabel: new Date(point.date).toLocaleDateString('pt-BR', {
-        month: 'short',
-        day: 'numeric',
-        timeZone: 'UTC',
-      }),
+      periodLabel: MONTHS_SHORT[new Date(point.date).getUTCMonth()],
       revenue: point.revenueMEur,
       cost: point.costMEur,
     })),
@@ -207,7 +205,7 @@ function toMarketDisplay(
   visual: MarketVisual,
 ): MarketDisplay {
   return {
-    gapLabel: `${market.gapMTons.toFixed(1)}${visual.axisSuffix} Tons`,
+    gapLabel: `${market.gapMTons.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${visual.axisSuffix} Tons`,
     chartData: market.points.map(toDemandSupplyPointDisplay),
     yAxisTickLabel: (value) => `${value}${visual.axisSuffix}`,
   }
@@ -401,7 +399,7 @@ export function StrategyView() {
             <div className="mb-3 flex items-center justify-between">
               <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <span className="grid size-7 place-items-center rounded-lg bg-neon-blue/15 text-neon-blue">
-                  AI
+                  IA
                 </span>
                 Recomendações do Estrategista
               </span>
