@@ -172,11 +172,11 @@ export function HomeView() {
                   tickFormatter={(v) => `$${v}M`}
                 />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--accent)' }} />
-                <Bar dataKey="revenue" name="Revenue" fill="url(#barRev)" radius={[4, 4, 0, 0]} barSize={14} />
+                <Bar dataKey="revenue" name="Receita" fill="url(#barRev)" radius={[4, 4, 0, 0]} barSize={14} />
                 <Line
                   type="monotone"
                   dataKey="expenses"
-                  name="Expenses"
+                  name="Despesas"
                   stroke="var(--neon-magenta)"
                   strokeWidth={2.5}
                   dot={false}

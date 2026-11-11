@@ -34,6 +34,5 @@ node_modules/
 
 # desativado apenas no ambiente local
 *.off
-*.antigo
-*.antigo2
 *.bak*
+*.antigo*
