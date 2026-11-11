@@ -61,7 +61,32 @@ export const MOCK_STRATEGY: StrategyDashboardData = {
       status: 'completed',
       lastContactedAt: '2023-10-28T00:45:00.000Z',
     },
-  ],
+  {
+      id: 'globalag',
+      name: 'AgroVale S.A.',
+      status: 'completed',
+      lastContactedAt: '2023-10-29T00:45:00.000Z',
+    },
+  {
+      id: 'globalag',
+      name: 'TerraNova Seeds',
+      status: 'completed',
+      lastContactedAt: '2023-10-30T00:45:00.000Z',
+    },
+  {
+      id: 'globalag',
+      name: 'CampoFértil',
+      status: 'completed',
+      lastContactedAt: '2023-10-31T00:45:00.000Z',
+    },
+  {
+      id: 'globalag',
+      name: 'HarvestLink',
+      status: 'completed',
+      lastContactedAt: '2023-11-01T00:45:00.000Z',
+    },
+  
+],
   recommendations: [
     {
       id: 'supply-chain-routes',
