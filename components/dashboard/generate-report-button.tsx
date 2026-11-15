@@ -1,31 +1,61 @@
-import { FileText } from 'lucide-react'
-import { cn } from '@/lib/utils'
+'use client'
 
-export function GenerateReportButton({
-  accent = 'cyan',
-  className,
-}: {
-  accent?: 'cyan' | 'green' | 'magenta'
-  className?: string
-}) {
-  const map = {
-    cyan: 'border-neon-cyan/60 text-neon-cyan shadow-[0_0_20px_-6px_var(--neon-cyan)] hover:bg-neon-cyan/10',
-    green:
-      'border-neon-green/60 text-neon-green shadow-[0_0_20px_-6px_var(--neon-green)] hover:bg-neon-green/10',
-    magenta:
-      'border-neon-magenta/60 text-neon-magenta shadow-[0_0_20px_-6px_var(--neon-magenta)] hover:bg-neon-magenta/10',
+import { useState } from 'react'
+import { montarRelatorio } from '@/lib/report/estrategia-relatorio'
+import { renderRelatorioHtml } from '@/lib/report/render-relatorio'
+
+type Accent = 'green' | 'blue' | 'magenta'
+
+const ACCENT_CLASSES: Record<Accent, string> = {
+  green: 'bg-neon-green text-black',
+  blue: 'bg-neon-blue text-black',
+  magenta: 'bg-neon-magenta text-black',
+}
+
+type Props = {
+  ano?: number
+  tri?: 1 | 2 | 3 | 4
+  accent?: Accent
+}
+
+export function GenerateReportButton({ ano = 2026, tri = 2, accent = 'green' }: Props) {
+  const [gerando, setGerando] = useState(false)
+
+  function gerar() {
+    setGerando(true)
+    try {
+      const relatorio = montarRelatorio({ ano, tri, geradoEm: new Date() })
+      const html = renderRelatorioHtml(relatorio)
+
+      const janela = window.open('', '_blank')
+      if (!janela) {
+        alert('Permita pop-ups para gerar o relatório.')
+        return
+      }
+
+      janela.document.open()
+      janela.document.write(html)
+      janela.document.close()
+      setTimeout(() => janela.print(), 400)
+    } catch (err) {
+      console.error(err)
+      alert(
+        'Não foi possível gerar o relatório: ' +
+          (err instanceof Error ? err.message : 'erro desconhecido'),
+      )
+    } finally {
+      setGerando(false)
+    }
   }
+
   return (
     <button
       type="button"
-      className={cn(
-        'flex items-center gap-2 rounded-xl border bg-card/40 px-4 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all',
-        map[accent],
-        className,
-      )}
+      onClick={gerar}
+      disabled={gerando}
+      className={`rounded-xl px-4 py-2.5 text-sm font-semibold ${ACCENT_CLASSES[accent]} disabled:opacity-60`}
     >
-      <FileText className="size-4" />
-      Gerar Relatório
+      {gerando ? 'Gerando…' : 'Gerar Relatório'}
     </button>
   )
 }

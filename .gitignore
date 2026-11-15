@@ -36,3 +36,4 @@ node_modules/
 *.off
 *.bak*
 *.antigo*
+tsconfig.tsbuildinfo

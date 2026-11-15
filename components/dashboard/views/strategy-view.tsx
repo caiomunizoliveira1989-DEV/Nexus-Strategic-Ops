@@ -31,6 +31,9 @@ import type {
   SupplierContactStatus,
 } from '@/lib/entities/strategy'
 import { MOCK_STRATEGY } from '@/lib/mock/strategy'
+import { SincronizacaoEstrategia } from '@/components/dashboard/notificacoes-estrategia'
+import { sinaisDeEstrategia } from '@/lib/notifications/estrategia'
+import { useRegistroVista } from '@/lib/notifications/use-registro-vista'
 
 type StrategyIcon = 'mail' | 'check-circle'
 type SupplierTone = 'green' | 'amber' | 'cyan'
@@ -194,8 +197,10 @@ export function StrategyView() {
     todayLabel ?? '',
   )
 
+  useRegistroVista('estrategia', sinaisDeEstrategia({}))
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ zoom: 0.9 }}>
+      <SincronizacaoEstrategia dados={MOCK_STRATEGY} />
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           Visão Geral Estratégica{' '}
@@ -207,7 +212,7 @@ export function StrategyView() {
           <span className="flex items-center gap-2 rounded-xl border border-border bg-card/40 px-3 py-2.5 text-sm text-muted-foreground">
             <CalendarDays className="size-4" /> {strategyPresentation.header.calendarDateLabel} ▾
           </span>
-          <GenerateReportButton accent="green" />
+          <GenerateReportButton accent="green" ano={2026} tri={2} />
         </div>
       </div>
 

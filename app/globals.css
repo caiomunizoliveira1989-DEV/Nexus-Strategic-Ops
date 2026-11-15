@@ -211,3 +211,66 @@
     border-color: rgba(52, 211, 153, 0.45);
   }
 }
+
+/* Tema escuro dos controles do Leaflet */
+.leaflet-container {
+  background: #05100a;
+  font-family: inherit;
+}
+
+.leaflet-control-zoom a,
+.leaflet-control-attribution {
+  background: rgba(10, 22, 16, 0.85) !important;
+  color: #cbd5c0 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(4px);
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(34, 197, 94, 0.25) !important;
+  color: #22c55e !important;
+}
+
+.leaflet-control-attribution a {
+  color: #22c55e !important;
+}
+
+.leaflet-control-scale-line {
+  background: rgba(10, 22, 16, 0.7);
+  color: #cbd5c0;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Card compacto de rede logistica: o painel de alertas precisa
+   acompanhar a largura do mapa, nao manter a largura da vista. */
+.card-logistica-painel,
+.card-logistica-painel > *,
+.card-logistica-painel > * > * {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.card-logistica-painel * {
+  max-width: 100% !important;
+}
+
+.card-logistica-painel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  overscroll-behavior: contain;
+}
+.card-logistica-painel::-webkit-scrollbar {
+  width: 6px;
+}
+.card-logistica-painel::-webkit-scrollbar-track {
+  background: transparent;
+}
+.card-logistica-painel::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+}
+.card-logistica-painel::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+

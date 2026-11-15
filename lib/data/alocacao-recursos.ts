@@ -3,11 +3,15 @@
 
 import { MOCK_STRATEGY } from '@/lib/mock/strategy'
 import { INDICADORES } from '@/lib/data/demanda-oferta'
+import { acharTrimestre, calcular, PIB_AGRO as SERIE_PIB } from './financial'
 
-/* ── Painel "Análise de Impacto Financeiro" (R$ bilhões) ── */
-const PIB_AGRO = 204.6
-const FRETE = 37.4
-const RESULTADO = 134.1
+const referencia = acharTrimestre(2026, 2) ?? SERIE_PIB[SERIE_PIB.length - 1]
+const REF = calcular(referencia)
+
+const PIB_AGRO = REF.pibBrlBi
+const FRETE = REF.freteBrlBi
+const RESULTADO = REF.resultadoBrlBi
+
 
 /* ── Painel "Status de Contato com Fornecedores" ── */
 const FORNECEDORES = MOCK_STRATEGY.suppliers

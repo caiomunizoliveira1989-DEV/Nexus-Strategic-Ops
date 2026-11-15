@@ -10,6 +10,7 @@ import {
   Wind,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { FeedAtividades } from '@/components/dashboard/feed-atividades'
 
 const AgricultureMapPanel = dynamic(
   () =>
@@ -25,10 +26,14 @@ const AgricultureMapPanel = dynamic(
     ),
   },
 )
+
 import { useAgricultureData } from '@/lib/hooks/use-agriculture-data'
 import { useI18n } from '@/lib/context/i18n-context'
 import { weatherCodeKey } from '@/lib/i18n/dictionary'
-import type { AlertCode, FeedCode, Severity } from '@/lib/services/agriculture-derived'
+import type { AlertCode, Severity } from '@/lib/services/agriculture-derived'
+import { useNotificacoesAgricultura } from '@/lib/notifications/use-notificacoes-agricultura'
+import { useRegistroVista } from '@/lib/notifications/use-registro-vista'
+import { sinaisDeAgricultura } from '@/lib/notifications/agricultura'
 
 const severityBox: Record<Severity, string> = {
   high: 'border-red-500/40 bg-red-500/10 text-red-400',
@@ -58,28 +63,14 @@ const alertDetailKey: Record<AlertCode, `alerts.${AlertCode}.detail`> = {
   stable: 'alerts.stable.detail',
 }
 
-const feedTitleKey: Record<FeedCode, `feed.${FeedCode}.title`> = {
-  sync: 'feed.sync.title',
-  forecast: 'feed.forecast.title',
-  rain: 'feed.rain.title',
-  wind: 'feed.wind.title',
-  ndvi: 'feed.ndvi.title',
-}
-
-const feedDetailKey: Record<FeedCode, `feed.${FeedCode}.detail`> = {
-  sync: 'feed.sync.detail',
-  forecast: 'feed.forecast.detail',
-  rain: 'feed.rain.detail',
-  wind: 'feed.wind.detail',
-  ndvi: 'feed.ndvi.detail',
-}
-
 const panelBase =
   'rounded-xl border border-border bg-card/50 transition-all duration-200 ease-out will-change-transform hover:z-30 hover:border-neon-green/40 hover:shadow-2xl hover:shadow-black/40 lg:hover:scale-[1.04]'
 
 export function AgricultureView() {
   const { location, weather, derived, loading } = useAgricultureData()
+  useRegistroVista('agricultura', sinaisDeAgricultura({ location, weather, derived, loading }))
   const { t } = useI18n()
+  useNotificacoesAgricultura({ location, weather, derived, loading })
 
   const soilMoisture = derived?.soilMoisture ?? 0
   const cropHealth = derived?.cropHealth ?? 0
@@ -87,7 +78,6 @@ export function AgricultureView() {
   const pestRisk: Severity = derived?.pestRisk ?? 'low'
   const alerts = derived?.alerts ?? []
   const feed = derived?.feed ?? []
-
   const activeAlerts = alerts.filter((item) => item.severity !== 'low').length
 
   const kpis = [
@@ -132,7 +122,6 @@ export function AgricultureView() {
             </span>
           </p>
         </div>
-
         {loading && (
           <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground lg:text-xs">
             <span className="size-1.5 animate-pulse rounded-full bg-neon-green" />
@@ -169,7 +158,6 @@ export function AgricultureView() {
       <div className="grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_23.75rem] xl:grid-cols-[minmax(0,1fr)_27.5rem] 2xl:grid-cols-[minmax(0,1fr)_31.25rem]">
         <div className="relative h-full min-h-[22.5rem] overflow-hidden rounded-xl border border-border lg:min-h-[33.75rem] xl:min-h-[38.75rem]">
           <AgricultureMapPanel />
-
           <div className="pointer-events-none absolute bottom-3 left-3 z-[500] flex flex-wrap gap-2">
             <span className="rounded-md border border-border bg-card/95 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur lg:text-xs">
               {t('agri.soilMoisture')}{' '}
@@ -188,43 +176,7 @@ export function AgricultureView() {
         </div>
 
         <aside className="flex min-h-0 flex-col gap-4 lg:pl-4">
-          <section className={`${panelBase} origin-right p-4`}>
-            <header className="mb-3 flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-foreground lg:text-base">
-                {t('agri.feed')}
-              </h3>
-              <span className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-neon-green">
-                <span className="size-1.5 animate-pulse rounded-full bg-neon-green" />
-                {t('agri.live')}
-              </span>
-            </header>
-            <ul className="space-y-2.5">
-              {feed.map((item) => (
-                <li
-                  key={item.id}
-                  className="border-l-2 border-neon-green/40 pl-2.5"
-                >
-                  <p className="text-xs font-medium text-foreground lg:text-sm">
-                    {t(feedTitleKey[item.code])}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground lg:text-xs">
-                    {t(feedDetailKey[item.code], {
-                      value: item.value ?? 0,
-                      temp: item.temp ?? 0,
-                      humidity: item.humidity ?? 0,
-                      days: item.days ?? 0,
-                      time: item.time ?? '--:--',
-                    })}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/60">
-                    {item.minutesAgo === 0
-                      ? t('agri.now')
-                      : t('agri.minutesAgo', { minutes: item.minutesAgo })}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <FeedAtividades feed={feed} className={`${panelBase} origin-right p-4`} />
 
           <section className={`${panelBase} origin-right p-4`}>
             <header className="mb-3 flex items-center justify-between gap-2">
@@ -269,7 +221,6 @@ export function AgricultureView() {
                 <span className="truncate">{location.label}</span>
               </span>
             </header>
-
             {weather ? (
               <>
                 <div className="flex items-end justify-between gap-2">
@@ -295,7 +246,6 @@ export function AgricultureView() {
                     </p>
                   </div>
                 </div>
-
                 <ul className="mt-3 flex-1 space-y-1 border-t border-border pt-2">
                   {weather.daily.map((day) => (
                     <li

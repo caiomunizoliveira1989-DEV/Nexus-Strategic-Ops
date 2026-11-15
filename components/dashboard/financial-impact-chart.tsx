@@ -69,7 +69,7 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
 
   if (!calc) {
     return (
-      <p className="text-sm text-muted-foreground">
+      <p className="text-lg text-muted-foreground">
         Sem publicação do IBGE para este trimestre.
       </p>
     )
@@ -88,14 +88,14 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <CalendarDays className="size-4" />
+      <div className="flex flex-wrap items-center gap-2 text-lg text-muted-foreground">
+        <CalendarDays className="size-6" />
         <label className="flex items-center gap-1.5">
           <span>Ano</span>
           <select
             value={ano}
             onChange={(e) => setAno(Number(e.target.value))}
-            className="rounded-lg border border-neon-blue/40 bg-transparent px-2 py-1 text-xs font-semibold text-foreground"
+            className="rounded-lg border border-neon-blue/40 bg-transparent px-2 py-1 text-lg font-semibold text-foreground"
             aria-label="Ano de referência"
           >
             {ANOS.map((a) => (
@@ -110,7 +110,7 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
           <select
             value={tri}
             onChange={(e) => setTri(Number(e.target.value) as 1 | 2 | 3 | 4)}
-            className="rounded-lg border border-neon-blue/40 bg-transparent px-2 py-1 text-xs font-semibold text-foreground"
+            className="rounded-lg border border-neon-blue/40 bg-transparent px-2 py-1 text-lg font-semibold text-foreground"
             aria-label="Trimestre"
           >
             {disponiveis.map((d) => (
@@ -120,7 +120,7 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
             ))}
           </select>
         </label>
-        <span className="ml-auto rounded bg-neon-green/15 px-1.5 py-0.5 text-[9px] text-neon-green">
+        <span className="ml-auto rounded bg-neon-green/15 px-2 py-0.5 text-[14px] text-neon-green">
           margem {FMT.format(calc.margemPct)}%
         </span>
       </div>
@@ -128,8 +128,8 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-lg border border-border/60 px-2.5 py-2">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{c.label}</p>
-            <p className={`text-sm font-bold ${c.cor}`}>
+            <p className="text-[15px] uppercase tracking-wide text-muted-foreground">{c.label}</p>
+            <p className={`text-xl font-bold ${c.cor}`}>
               {formatBillions(c.valor, currency, ptax)}
             </p>
           </div>
@@ -148,13 +148,13 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }}
+              tick={{ fill: 'var(--muted-foreground)', fontSize: 13 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={domain}
-              tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }}
+              tick={{ fill: 'var(--muted-foreground)', fontSize: 13 }}
               axisLine={false}
               tickLine={false}
             />
@@ -176,7 +176,7 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
         </ResponsiveContainer>
       </div>
 
-      <div className="rounded-lg border border-border/60 bg-muted/20 p-3 text-[12px] leading-relaxed text-muted-foreground">
+      <div className="rounded-lg border border-border/60 bg-muted/20 p-3 text-[18px] leading-relaxed text-muted-foreground">
         <span className="font-semibold text-foreground">{calc.rotulo}</span>
         {' · '}PIB {formatBillions(calc.pibBrlBi)}
         {' · '}tributos a 16,15%
@@ -185,12 +185,12 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
       </div>
 
       <div className="border-t border-border/60 pt-2.5">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="mb-2 text-[16px] font-semibold uppercase tracking-wide text-muted-foreground">
           Fontes e parâmetros
         </p>
         <ul className="space-y-1">
           {FONTES.map((f) => (
-            <li key={f.nome} className="flex flex-wrap items-baseline gap-1.5 text-[11px] leading-relaxed">
+            <li key={f.nome} className="flex flex-wrap items-baseline gap-1.5 text-[16px] leading-relaxed">
               <a
                 href={f.url}
                 target="_blank"
@@ -215,7 +215,7 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground/80">
+        <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground/80">
           Resultado = PIB − tributos − frete. Não é lucro contábil: o valor adicionado já exclui
           impostos sobre produtos e parte do frete é serviço de outro setor.
         </p>

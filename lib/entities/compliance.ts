@@ -1,45 +1,37 @@
-export type ComplianceStatus = 'verified' | 'pending'
+export type StatusConformidade = 'verificado' | 'pendente'
 
-export interface ComplianceChecklistItem {
+export type ItemChecklist = {
   id: string
-  title: string
-  status: ComplianceStatus
-  verifiedAt: string | null
+  nome: string
+  status: StatusConformidade
+  verificadoPorIA: boolean
+  dataVerificacao: string | null
 }
 
-export interface ComplianceChecklist {
-  sectionTitle: string
-  completionPct: number
-  items: ComplianceChecklistItem[]
+export type AreaMonitorada = {
+  nome: string
+  subtitulo: string
+  latitude: string
+  longitude: string
 }
 
-export interface CarbonCreditPoint {
-  monthLabel: string
-  balanceTons: number
+export type PontoCredito = {
+  mes: string
+  saldo: number
 }
 
-export interface CarbonCreditData {
-  growthPct: number
-  currentBalanceTons: number
-  points: CarbonCreditPoint[]
-}
-
-export interface ComplianceMapArea {
-  name: string
-  boundaryLabel: string
-  coordinates: string
-  imageSrc: string
-  imageAlt: string
-  boundaryPath: string
-}
-
-export interface ComplianceHeader {
-  presenterName: string
-}
-
-export interface ComplianceDashboardData {
-  header: ComplianceHeader
-  map: ComplianceMapArea
-  checklist: ComplianceChecklist
-  carbon: CarbonCreditData
+export type DadosConformidade = {
+  checklist: {
+    titulo: string
+    secao: string
+    itens: ItemChecklist[]
+  }
+  area: AreaMonitorada
+  creditos: {
+    titulo: string
+    saldoAtual: number
+    unidade: string
+    crescimentoPct: number
+    serie: PontoCredito[]
+  }
 }
