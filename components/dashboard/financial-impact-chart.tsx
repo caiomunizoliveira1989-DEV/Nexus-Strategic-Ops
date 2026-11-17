@@ -125,7 +125,7 @@ export function FinancialImpactChart({ currency = 'BRL' }: Props) {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-lg border border-border/60 px-2.5 py-2">
             <p className="text-[15px] uppercase tracking-wide text-muted-foreground">{c.label}</p>

@@ -5,6 +5,7 @@ import { Providers } from '@/app/providers'
 import { LocationProvider } from '@/lib/context/location-context'
 import { I18nProvider } from '@/lib/context/i18n-context'
 import './globals.css'
+import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -13,9 +14,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'NEXUS | Strategic Operations Dashboard',
-  description:
-    'Painel de operações estratégicas com IA — agricultura, estratégia, conformidade e logística global.',
+  title: 'Nexus Strategic Ops',
+  description: 'Painel estratégico de operações',
+  manifest: '/manifest.webmanifest',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -42,16 +43,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      className={`dark ${geistSans.variable} ${geistMono.variable}`}
-    >
-      <body className="bg-background font-sans antialiased">
+    <html lang="pt-BR">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} bg-background font-sans antialiased`}
+      >
         <LocationProvider>
           <I18nProvider>
             <Providers>{children}</Providers>
           </I18nProvider>
         </LocationProvider>
+        <ServiceWorkerRegister />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

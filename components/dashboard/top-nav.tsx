@@ -1,5 +1,6 @@
 'use client'
 
+import { useSession } from 'next-auth/react'
 import { useCallback } from 'react'
 import {
   LayoutDashboard,
@@ -25,7 +26,7 @@ export type ViewId =
 
 export type TabId = ViewId
 
-const TABS: ReadonlyArray<{
+export const NAV_TABS: ReadonlyArray<{
   id: ViewId
   key: TranslationKey
   icon: LucideIcon
@@ -57,6 +58,11 @@ export function TopNav(props: TopNavProps) {
   const router = useRouter()
   const pathname = usePathname()
 
+  const { data: session } = useSession()
+  const userName = session?.user?.name ?? props.userName
+  const userRole =
+    (session?.user as { role?: string } | undefined)?.role ?? props.userRole
+
   const current =
     props.activeView ??
     props.activeTab ??
@@ -77,12 +83,12 @@ export function TopNav(props: TopNavProps) {
       notify?.(view)
       if (pathname !== '/') router.push('/')
     },
-    [notify],
+    [notify, pathname, router, setContextView],
   )
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[112.5rem] flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
+      <div className="mx-auto flex max-w-[112.5rem] items-center gap-3 px-4 py-3 lg:px-6">
         <div className="flex items-center gap-2.5">
           <span className="grid size-9 place-items-center rounded-lg border border-neon-green/40 bg-neon-green/10">
             <Leaf className="size-4 text-neon-green" />
@@ -91,7 +97,7 @@ export function TopNav(props: TopNavProps) {
             <p className="text-sm font-bold tracking-wide text-foreground">
               NEXUS
             </p>
-            <p className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="hidden text-[9px] uppercase tracking-[0.18em] text-muted-foreground sm:block">
               {t('brand.tagline')}
             </p>
           </div>
@@ -99,9 +105,9 @@ export function TopNav(props: TopNavProps) {
 
         <nav
           aria-label={t('common.views')}
-          className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 lg:order-2 lg:ml-auto lg:w-auto lg:overflow-visible lg:pb-0"
+          className="ml-auto hidden items-center gap-1 lg:flex"
         >
-          {TABS.map((tab) => {
+          {NAV_TABS.map((tab) => {
             const Icon = tab.icon
             const active = tab.id === current
 
@@ -124,11 +130,10 @@ export function TopNav(props: TopNavProps) {
           })}
         </nav>
 
-        <div className="order-2 ml-auto flex shrink-0 items-center gap-2 lg:order-3 lg:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
           <NotificationsBell />
-          <UserMenu name={props.userName} role={props.userRole} />
+          <UserMenu name={userName} role={userRole} />
         </div>
-
       </div>
     </header>
   )

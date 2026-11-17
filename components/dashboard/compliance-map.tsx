@@ -222,7 +222,7 @@ export function ComplianceMap({ area }: { area: AreaMonitorada }) {
           <Maximize2 className="size-4 shrink-0 text-muted-foreground" />
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-background/40 px-2 py-1">
             <p className="text-[9px] uppercase tracking-wide text-muted-foreground">
               Área em alerta

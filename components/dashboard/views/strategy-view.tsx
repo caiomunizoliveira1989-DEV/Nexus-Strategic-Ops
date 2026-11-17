@@ -199,8 +199,8 @@ export function StrategyView() {
 
   useRegistroVista('estrategia', sinaisDeEstrategia({}))
   return (
-    <div className="space-y-6" style={{ zoom: 0.9 }}>
-      <SincronizacaoEstrategia dados={MOCK_STRATEGY} />
+  <div className="space-y-6">
+    <SincronizacaoEstrategia dados={MOCK_STRATEGY} />
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           Visão Geral Estratégica{' '}
@@ -216,7 +216,7 @@ export function StrategyView() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {/* Linha 1 — Impacto Financeiro */}
         <div className="min-w-0 md:col-span-2 md:col-start-1 md:row-start-1">
           <Panel className="flex h-full flex-col">
