@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   title: 'Nexus Strategic Ops',
   description: 'Painel estratégico de operações',
   manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    title: 'Nexus',
+    statusBarStyle: 'black-translucent',
+  },
   generator: 'v0.app',
   icons: {
     icon: [
