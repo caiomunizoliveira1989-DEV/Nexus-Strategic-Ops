@@ -12,9 +12,8 @@ export function middleware(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some((path) => name.startsWith(path))
 
   if (isPublic) {
-    if (name.startsWith('/login') && hasSession) {
-      return NextResponse.redirect(new URL('/', nextUrl))
-    }
+    // removido: nao redirecionar /login -> / so porque existe cookie
+    // (cookie invalido gerava loop /profile -> /login -> /)
     return NextResponse.next()
   }
 
