@@ -156,7 +156,7 @@ export function AgricultureView() {
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 items-stretch gap-4 lg:gap-0 lg:grid-cols-[minmax(0,1fr)_23.75rem] xl:grid-cols-[minmax(0,1fr)_27.5rem] 2xl:grid-cols-[minmax(0,1fr)_31.25rem]">
-        <div className="relative h-full min-h-[22.5rem] overflow-hidden rounded-xl border border-border lg:min-h-[33.75rem] xl:min-h-[38.75rem]">
+        <div className="relative w-full overflow-visible rounded-xl border border-border">
           <AgricultureMapPanel />
           <div className="pointer-events-none absolute bottom-3 left-3 z-[500] flex flex-wrap gap-2">
             <span className="rounded-md border border-border bg-card/95 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur lg:text-xs">

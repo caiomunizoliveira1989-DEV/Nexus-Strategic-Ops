@@ -89,7 +89,7 @@ export function FarmBrowser({ view, center, zoom, selectedId, farms, meta, onPic
   const activeState = groups[0]?.state ?? null
 
   return (
-    <aside className="flex h-full w-[272px] shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card/60">
+    <aside className="order-2 flex w-full max-h-[26rem] flex-col overflow-hidden rounded-xl border border-border bg-card/60">
       <div className="flex items-center justify-between gap-2 border-b border-border px-2.5 py-2">
         <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <MapPin className="size-3.5 text-neon-green" />

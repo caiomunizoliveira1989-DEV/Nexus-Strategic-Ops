@@ -368,20 +368,22 @@ export function AgricultureMapPanel() {
   const zoom = view?.zoom ?? 11
 
   return (
-    <div className="flex h-full w-full gap-2 overflow-hidden">
+    <div className="flex w-full flex-col gap-2 overflow-visible">
       <style>{FARM_CSS}</style>
 
-      <FarmBrowser
-        view={view?.view ?? null}
-        center={view?.center ?? null}
-        zoom={zoom}
-        selectedId={selectedId}
-        farms={farms}
-        meta={meta}
-        onPick={pickFarm}
-      />
+      <div className="order-2 min-h-0 w-full md:order-1 md:h-full md:w-[272px] md:shrink-0">
+        <FarmBrowser
+          view={view?.view ?? null}
+          center={view?.center ?? null}
+          zoom={zoom}
+          selectedId={selectedId}
+          farms={farms}
+          meta={meta}
+          onPick={pickFarm}
+        />
+      </div>
 
-      <div className="relative min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-card/40">
+      <div className="relative order-1 h-[320px] w-full min-w-0 shrink-0 overflow-hidden rounded-xl border border-border bg-card/40">
         <MapContainer
           center={[location.lat, location.lng]}
           zoom={11}
