@@ -22,6 +22,17 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Demo Access
+
+The dashboard sits behind a login. Use the credentials below to explore the app.
+
+```
+Email:    caio@zeus.com
+Password: 12345678
+```
+
+This is a shared demo account, created for evaluation purposes only.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 ## Learn More
