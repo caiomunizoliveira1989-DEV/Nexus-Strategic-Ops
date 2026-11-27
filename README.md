@@ -1,44 +1,43 @@
-# v0-nexusproject
+# Nexus Strategic Ops
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+Dashboard para acompanhar produção agrícola, logística e escoamento, com alertas para pontos fora do padrão.
 
-## Built with v0
+**Demo:** https://nexus-ops-ashy.vercel.app/login
+**Acesso de avaliação:** `caio@zeus.com` / `12345678`
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+## Sobre o projeto
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_Ff5lJyH7S1tbKsxIsaCfHbLF6qgH)
+Painel que reúne indicadores de produção por região, rotas de escoamento e alertas operacionais em uma única tela. Construído para leitura rápida: o que está fora do padrão aparece antes do resto.
 
-## Getting Started
+Interface responsiva, com suporte a PWA para uso no celular.
 
-First, run the development server:
+## Stack
+
+Next.js (App Router) · TypeScript · Tailwind CSS · Prisma · PostgreSQL (Neon)
+
+## Como rodar localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse http://localhost:3000. Antes de rodar, configure a conexão com o banco em `DATABASE_URL`.
 
-## Demo Access
+## Acesso de avaliação
 
-The dashboard sits behind a login. Use the credentials below to explore the app.
+O dashboard fica atrás de login. A conta abaixo é compartilhada e existe apenas para avaliação.
 
 ```
-Email:    caio@zeus.com
-Password: 12345678
+E-mail: caio@zeus.com
+Senha:  12345678
 ```
 
-This is a shared demo account, created for evaluation purposes only.
+## Desenvolvimento
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+O projeto foi construído com apoio de IA para acelerar a implementação, com decisões técnicas e revisão próprias ao longo do processo.
 
-## Learn More
+## Saiba mais
 
-To learn more, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+- [Documentação do Next.js](https://nextjs.org/docs) — recursos e API do framework.
+- [Tutorial do Next.js](https://nextjs.org/learn) — tutorial interativo do framework.
